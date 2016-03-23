@@ -47,6 +47,14 @@
             android:name=".About"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name=".AddLocationMapsActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".AddLocationActivity"
+            android:screenOrientation="portrait" >
+        </activity>
         
         <meta-data
             android:name="com.google.android.gms.version"
@@ -54,7 +62,7 @@
         
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCiGsRrCRHrXPc8J2XAVJYgkC39A6gDi4c" />
+            android:value="AIzaSyAajjYuhWkdnwZ9UPBqT50vZzTA4i4h1io" />
     </application>
 
 </manifest>

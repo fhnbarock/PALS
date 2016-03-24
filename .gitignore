@@ -47,6 +47,7 @@ Thumbs.db
 .project
 *.metadata
 bin/
+bin/dexedLibs/*.jar
 tmp/**
 tmp/**/*
 *.tmp
@@ -62,4 +63,3 @@ project.properties
 .ap_
 .dex
 dexedLibs/
-dexedLibs/*.jar

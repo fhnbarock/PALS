@@ -20,7 +20,6 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 public class FindATM extends Activity implements
 		LocationListener,
@@ -68,8 +67,8 @@ public class FindATM extends Activity implements
         findButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent mapsActivity = new Intent(FindATM.this, MapsActivity.class);
-				startActivity(mapsActivity);
+				Intent listResult = new Intent(FindATM.this, ListResultActivity.class);
+				startActivity(listResult);
 			}
 		});
 	}

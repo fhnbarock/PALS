@@ -24,22 +24,24 @@ public class MapsActivity extends FragmentActivity implements
         LocationListener {
 
     public static final String TAG = MapsActivity.class.getSimpleName();
-
-    /*
-     * Define a request code to send to Google Play services
-     * This code is returned in Activity.onActivityResult
-     */
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
-    private GoogleMap gMap; // Might be null if Google Play services APK is not available.
+    private GoogleMap gMap;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    String placeName, placeAddress;
+    Double placeLat, placeLong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        
+        placeName = getIntent().getStringExtra("place_name");
+        placeAddress = getIntent().getStringExtra("place_address");
+        placeLat = Double.valueOf(getIntent().getStringExtra("place_lat"));
+        placeLong = Double.valueOf(getIntent().getStringExtra("place_long"));
         setUpMap();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -54,24 +56,32 @@ public class MapsActivity extends FragmentActivity implements
                 .setInterval(3 * 1000)        // 3 seconds, in milliseconds
                 .setFastestInterval(1 * 1000); // 1 second, in milliseconds
     }
-
+    
     @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMap();
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart fired ..............");
         mGoogleApiClient.connect();
     }
     
     @Override
-    protected void onPause() {
-        super.onPause();
-
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop fired ..............");
+        mGoogleApiClient.disconnect();
+        Log.d(TAG, "isConnected ...............: " + mGoogleApiClient.isConnected());
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
         if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
+        	LocationServices.FusedLocationApi.requestLocationUpdates(
+    	            mGoogleApiClient, mLocationRequest, this);
+            Log.d(TAG, "Location update resumed .....................");
         }
     }
-
+    
     private void setUpMap() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (gMap == null) {
@@ -80,7 +90,7 @@ public class MapsActivity extends FragmentActivity implements
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (gMap != null) {
-            	//mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+            	gMap.addMarker(new MarkerOptions().position(new LatLng(placeLat, placeLong)).title(placeName));
             	gMap.setMyLocationEnabled(true);
                 gMap.getUiSettings().setRotateGesturesEnabled(false);
             }
@@ -151,6 +161,5 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        //handleNewLocation(location);
     }
 }

@@ -12,6 +12,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -19,8 +20,13 @@ public class ListResultActivity extends ListActivity{
 	
 	public static final String TAG_NAME = "placeName";
     public static final String TAG_ADDRESS = "placeAddress";
+    public static final String TAG_LAT = "placeLat";
+    public static final String TAG_LONG = "placeLong";
     public static final String TAG_DISTANCE = "placeDistance";
     ArrayList<HashMap<String, String>> placeList; 
+    String[] arrPlaceName, arrPlaceAddress, arrPlaceLat, arrPlaceLong, arrPlaceDistance;
+    String company;
+    String placeName, placeAddress, placeLat, placeLong;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,20 +37,36 @@ public class ListResultActivity extends ListActivity{
 		ListView lv = getListView();
 	
 		placeList = new ArrayList<HashMap<String, String>>();
+		final String[] from = {TAG_NAME, TAG_ADDRESS, TAG_DISTANCE, TAG_LAT, TAG_LONG};
 		
-		final String[] from = {TAG_NAME, TAG_ADDRESS, TAG_DISTANCE};
-		String[] placeName = {"ATM BCA MARGONDA", "ATM BCA BEJI", "ATM BCA JUANDA", "ATM BCA TANAH BARU"};
-		String[] placeAddress = {"Margonda, Depok", "Beji, Depok", "Juanda, Depok", "Tanah Baru, Depok"};
-		String[] placeDistance = {"500 m", "200 m", "750 m", "400 m"};
+		Bundle bundle = new Bundle();
+		bundle = getIntent().getExtras();
+		if(bundle==null){
+			arrPlaceName = new String[]{"ATM BCA MARGONDA", "ATM BCA BEJI", "ATM BCA JUANDA", "ATM BCA TANAH BARU"};
+			arrPlaceAddress = new String[]{"Margonda, Depok", "Beji, Depok", "Juanda, Depok", "Tanah Baru, Depok"};
+			arrPlaceLat = new String[]{"1", "10", "20", "30"};
+			arrPlaceLong = new String[]{"1", "10", "20", "30"};
+			arrPlaceDistance = new String[]{"0.5", "0.2", "0.75", "0.4"};
+		} else {
+			if (bundle.getString("category").equals("gas_station")){
+				arrPlaceName = bundle.getStringArray("spbu_name");
+				company = bundle.getString("spbu_company");
+				arrPlaceAddress = bundle.getStringArray("spbu_address");
+				arrPlaceLat = bundle.getStringArray("spbu_lat");
+				arrPlaceLong = bundle.getStringArray("spbu_long");
+				arrPlaceDistance = bundle.getStringArray("spbu_distance");
+			}
+		}
+		final int[] to = {R.id.placeName, R.id.placeAddress, R.id.placeDistance, R.id.placeLat, R.id.placeLong};
 		
-		final int[] to = {R.id.placeName, R.id.placeAddress, R.id.placeDistance};
-		
-		int i = 0;
-		for(int j=0; j<placeName.length; j++){
+		int x = 0;
+		for(int j=0; j<arrPlaceName.length; j++){
 			HashMap<String, String> map = new HashMap<String, String>();
-			map.put(from[i], placeName[j]);
-			map.put(from[i+1], placeAddress[j]);
-			map.put(from[i+2], placeDistance[j]);
+			map.put(from[x], arrPlaceName[j]);
+			map.put(from[x+1], arrPlaceAddress[j]);
+			map.put(from[x+2], arrPlaceDistance[j] + " km");
+			map.put(from[x+3], arrPlaceLat[j]);
+			map.put(from[x+4], arrPlaceLong[j]);
 			placeList.add(map);
 		}
 		
@@ -69,7 +91,20 @@ public class ListResultActivity extends ListActivity{
 					int position, long id) {
 				Network ic = new Network();
 				if (ic.isNetworkConnected(getApplicationContext())) {
+					placeName = ((TextView) view.findViewById(R.id.placeName)).
+							getText().toString();
+					placeAddress = ((TextView) view.findViewById(R.id.placeAddress)).
+							getText().toString();
+					placeLat = ((TextView) view.findViewById(R.id.placeLat)).
+							getText().toString();
+					placeLong = ((TextView) view.findViewById(R.id.placeLong)).
+							getText().toString();
+					
 					Intent mapsActivity = new Intent(getApplicationContext(), MapsActivity.class);
+					mapsActivity.putExtra("place_name", placeName);
+					mapsActivity.putExtra("place_address", placeAddress);
+					mapsActivity.putExtra("place_lat", placeLat);
+					mapsActivity.putExtra("place_long", placeLong);
 					startActivity(mapsActivity);
 					
 				} else 	Toast.makeText(getApplicationContext(), "Maaf tidak ada koneksi internet", 

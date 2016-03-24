@@ -47,14 +47,34 @@ public class MenuActivity extends Activity implements
 	        .addOnConnectionFailedListener(this)
 	        .build();
         
-        LinearLayout btnShowMaps = (LinearLayout)findViewById(R.id.btnShowMaps);
-        btnShowMaps.setOnClickListener(new OnClickListener() {
+        LinearLayout btnATM = (LinearLayout)findViewById(R.id.findATM);
+        btnATM.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent mapsActivity = new Intent(MenuActivity.this, FindATM.class);
-				startActivity(mapsActivity);
+				Intent findATM = new Intent(MenuActivity.this, FindATM.class);
+				startActivity(findATM);
 			}
 		});
+        
+        LinearLayout btnGasStation = (LinearLayout)findViewById(R.id.findGasStation);
+        btnGasStation.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent findGasStation = new Intent(MenuActivity.this, FindGasStation.class);
+				startActivity(findGasStation);
+			}
+		});
+        
+        LinearLayout btnRepairShop = (LinearLayout)findViewById(R.id.findRepairShop);
+        /*
+        btnRepairShop.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent findRepairShop = new Intent(MenuActivity.this, FindRepairShop.class);
+				startActivity(findRepairShop);
+			}
+		});
+		*/
 	}
 	
 	@Override

@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="17"
-        android:targetSdkVersion="23" />
+        android:targetSdkVersion="21" />
 	
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -33,6 +33,10 @@
         </activity>
         <activity
             android:name=".FindATM"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".FindGasStation"
             android:screenOrientation="portrait" >
         </activity>
         <activity

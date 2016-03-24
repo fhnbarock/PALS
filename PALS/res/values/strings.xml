@@ -15,6 +15,12 @@
         <item>BRI</item>
     </string-array>
     
+    <string-array name="company">
+        <item>Select Company</item>
+        <item>Pertamina</item>
+        <item>Shell</item>
+    </string-array>
+    
     <string-array name="radius">
         <item>Select Radius</item>
         <item>Display All</item>

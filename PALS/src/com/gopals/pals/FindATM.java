@@ -65,7 +65,7 @@ public class FindATM extends Activity implements
         
         Button findButton = (Button)findViewById(R.id.atmFindButton);
         findButton.setOnClickListener(new OnClickListener() {
-			@Override
+        	@Override
 			public void onClick(View v) {
 				Intent listResult = new Intent(FindATM.this, ListResultActivity.class);
 				startActivity(listResult);

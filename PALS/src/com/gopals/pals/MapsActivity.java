@@ -93,6 +93,8 @@ public class MapsActivity extends FragmentActivity implements
             	gMap.addMarker(new MarkerOptions().position(new LatLng(placeLat, placeLong)).title(placeName));
             	gMap.setMyLocationEnabled(true);
                 gMap.getUiSettings().setRotateGesturesEnabled(false);
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(placeLat, placeLong), 12);
+                gMap.animateCamera(cameraUpdate);
             }
         }
     }
@@ -108,10 +110,8 @@ public class MapsActivity extends FragmentActivity implements
         //mMap.addMarker(new MarkerOptions().position(new LatLng(currentLatitude, currentLongitude)).title("Current Location"));
         MarkerOptions options = new MarkerOptions()
                 .position(latLng)
-                .title("I am here!");
+                .title("Current Location");
         gMap.addMarker(options);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-        gMap.animateCamera(cameraUpdate);
     }
 
     @Override

@@ -42,11 +42,15 @@ public class ListResultActivity extends ListActivity{
 		Bundle bundle = new Bundle();
 		bundle = getIntent().getExtras();
 		if(bundle==null){
+			/*
 			arrPlaceName = new String[]{"ATM BCA MARGONDA", "ATM BCA BEJI", "ATM BCA JUANDA", "ATM BCA TANAH BARU"};
 			arrPlaceAddress = new String[]{"Margonda, Depok", "Beji, Depok", "Juanda, Depok", "Tanah Baru, Depok"};
 			arrPlaceLat = new String[]{"1", "10", "20", "30"};
 			arrPlaceLong = new String[]{"1", "10", "20", "30"};
 			arrPlaceDistance = new String[]{"0.5", "0.2", "0.75", "0.4"};
+			*/
+			noData.setVisibility(View.VISIBLE);
+			Toast.makeText(getApplicationContext(), "No Data", Toast.LENGTH_SHORT).show();
 		} else {
 			if (bundle.getString("category").equals("gas_station")){
 				arrPlaceName = bundle.getStringArray("spbu_name");
@@ -56,34 +60,30 @@ public class ListResultActivity extends ListActivity{
 				arrPlaceLong = bundle.getStringArray("spbu_long");
 				arrPlaceDistance = bundle.getStringArray("spbu_distance");
 			}
+			
+			final int[] to = {R.id.placeName, R.id.placeAddress, R.id.placeDistance, R.id.placeLat, R.id.placeLong};
+			
+			int x = 0;
+			for(int j=0; j<arrPlaceName.length; j++){
+				HashMap<String, String> map = new HashMap<String, String>();
+				map.put(from[x], arrPlaceName[j]);
+				map.put(from[x+1], arrPlaceAddress[j]);
+				map.put(from[x+2], arrPlaceDistance[j] + " km");
+				map.put(from[x+3], arrPlaceLat[j]);
+				map.put(from[x+4], arrPlaceLong[j]);
+				placeList.add(map);
+			}
+			
+			if(placeList.size()>0){	
+				runOnUiThread(new Runnable() {
+		            public void run() {
+		            	ListAdapter adapter = new SimpleAdapter(getApplicationContext(), placeList,
+		        				R.layout.list_item, from, to);	
+		        		setListAdapter(adapter);
+		            }
+				});
+			} 
 		}
-		final int[] to = {R.id.placeName, R.id.placeAddress, R.id.placeDistance, R.id.placeLat, R.id.placeLong};
-		
-		int x = 0;
-		for(int j=0; j<arrPlaceName.length; j++){
-			HashMap<String, String> map = new HashMap<String, String>();
-			map.put(from[x], arrPlaceName[j]);
-			map.put(from[x+1], arrPlaceAddress[j]);
-			map.put(from[x+2], arrPlaceDistance[j] + " km");
-			map.put(from[x+3], arrPlaceLat[j]);
-			map.put(from[x+4], arrPlaceLong[j]);
-			placeList.add(map);
-		}
-		
-		if(placeList.size()>0){	
-			runOnUiThread(new Runnable() {
-	            public void run() {
-	            	ListAdapter adapter = new SimpleAdapter(getApplicationContext(), placeList,
-	        				R.layout.list_item, from, to);	
-	        		setListAdapter(adapter);
-	            }
-			});
-		} else {
-			noData.setVisibility(View.VISIBLE);
-			Toast.makeText(getApplicationContext(), "No Data", Toast.LENGTH_SHORT).show();
-		}
-		
-		
 		
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override

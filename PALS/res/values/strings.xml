@@ -21,7 +21,7 @@
         <item>Shell</item>
     </string-array>
     
-    <string-array name="radius">
+    <string-array name="radius_display">
         <item>Select Radius</item>
         <item>Display All</item>
         <item>500 m</item>
@@ -32,4 +32,16 @@
         <item>1 km</item>
     </string-array>
     
+    <string-array name="radius">
+        <item>Select Radius</item>
+        <item>Display All</item>
+        <item>0.5</item>
+        <item>0.6</item>
+        <item>0.7</item>
+        <item>0.8</item>
+        <item>0.9</item>
+        <item>1</item>
+        
+    </string-array>
+        
 </resources>

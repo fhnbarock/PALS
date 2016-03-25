@@ -36,6 +36,10 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".FindGasStation"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".ListResultActivity"
             android:screenOrientation="portrait" >
         </activity>

@@ -19,6 +19,7 @@ import com.google.android.gms.location.LocationServices;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,9 +30,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class FindGasStation extends Activity implements
@@ -67,8 +68,7 @@ public class FindGasStation extends Activity implements
     GoogleApiClient mGoogleApiClient;
     
     String[] radiusAmount=null;
-    
-	
+    	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -78,6 +78,8 @@ public class FindGasStation extends Activity implements
         	StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         	StrictMode.setThreadPolicy(policy);
         }
+		
+		Typeface bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");
 		
 		if (!isGooglePlayServicesAvailable()) {
             finish();
@@ -96,17 +98,28 @@ public class FindGasStation extends Activity implements
         radiusSpr = getResources().getStringArray(R.array.radius_display);
         radiusAmount = getResources().getStringArray(R.array.radius);
         
+        /* Custom Adapter to change spinner and spinner items font */
+        MySpinnerAdapter adapterCompany = new MySpinnerAdapter(
+        		this, android.R.layout.simple_spinner_dropdown_item, companySpr);
+        MySpinnerAdapter adapterRadius = new MySpinnerAdapter(
+        		this, android.R.layout.simple_spinner_dropdown_item, radiusSpr);
+        
+        /* Default ArrayAdapter for Spinner
         ArrayAdapter<String> adapterCompany = new ArrayAdapter<String>(this, 
         		android.R.layout.simple_spinner_dropdown_item, companySpr);
         ArrayAdapter<String> adapterRadius = new ArrayAdapter<String>(this, 
         		android.R.layout.simple_spinner_dropdown_item, radiusSpr);
-        
+        */
         final Spinner SpinnerCompany = (Spinner) findViewById(R.id.spr_company);
         final Spinner SpinnerRadius = (Spinner) findViewById(R.id.spr_radius);
         SpinnerCompany.setAdapter(adapterCompany);
         SpinnerRadius.setAdapter(adapterRadius);
         
+        TextView gasStationLbl = (TextView)findViewById(R.id.gasStationLbl);
         Button findButton = (Button)findViewById(R.id.gasStationFindButton);
+        gasStationLbl.setTypeface(bariol, Typeface.BOLD);
+        findButton.setTypeface(bariol);
+        
         findButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

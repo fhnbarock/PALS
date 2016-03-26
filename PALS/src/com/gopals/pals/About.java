@@ -2,7 +2,6 @@ package com.gopals.pals;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -26,6 +25,7 @@ public class About extends Activity {
 		
 		String versionName = getResources().getString(R.string.versionName);
 		Typeface bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");
+		
 		TextView aboutLbl = (TextView) findViewById(R.id.aboutLbl);
 		TextView devLbl = (TextView) findViewById(R.id.developersLbl);
 		TextView copyrightLbl = (TextView) findViewById(R.id.copyrightLbl);

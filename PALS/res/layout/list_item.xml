@@ -41,7 +41,7 @@
 
     <LinearLayout
         android:paddingBottom="10dp"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:gravity="left|center_vertical"
@@ -51,7 +51,8 @@
             android:id="@+id/placeName"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="6dip"
+        	android:layout_marginRight="10dp"
+            android:paddingLeft="6dip"       
             android:paddingTop="6dip"
             android:text="name"
             android:textSize="15sp"
@@ -62,6 +63,7 @@
             android:id="@+id/placeAddress"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
             android:paddingLeft="6dip"
             android:paddingTop="6dip"
             android:text="address"

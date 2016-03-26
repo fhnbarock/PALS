@@ -46,7 +46,9 @@ Thumbs.db
 *.pydevproject
 .project
 *.metadata
-bin/
+bin/*.txt
+bin/*.xml
+bin/PALS.apk
 bin/dexedLibs/*.jar
 tmp/**
 tmp/**/*

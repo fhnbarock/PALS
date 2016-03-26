@@ -30,9 +30,11 @@ public class FindATM extends Activity implements
     private static final long INTERVAL = 1000 * 3;
     private static final long FASTEST_INTERVAL = 1000 * 1;
     
+    String bankName, radiusStr;
 	LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     
+    String[] radiusAmount=null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +53,10 @@ public class FindATM extends Activity implements
         
         String[] bankNameSpr=null;
         String[] radiusSpr=null;
+        
         bankNameSpr = getResources().getStringArray(R.array.bank_name);
-        radiusSpr = getResources().getStringArray(R.array.radius);
+        radiusSpr = getResources().getStringArray(R.array.radius_display);
+        radiusAmount = getResources().getStringArray(R.array.radius);
         ArrayAdapter<String> adapterBank = new ArrayAdapter<String>(this, 
         		android.R.layout.simple_spinner_dropdown_item, bankNameSpr);
         ArrayAdapter<String> adapterRadius = new ArrayAdapter<String>(this, 
@@ -67,6 +71,9 @@ public class FindATM extends Activity implements
         findButton.setOnClickListener(new OnClickListener() {
         	@Override
 			public void onClick(View v) {
+				bankName = (String) SpinnerBank.getSelectedItem();
+				radiusStr = radiusAmount[SpinnerRadius.getSelectedItemPosition()];
+				
 				Intent listResult = new Intent(FindATM.this, ListResultActivity.class);
 				startActivity(listResult);
 			}

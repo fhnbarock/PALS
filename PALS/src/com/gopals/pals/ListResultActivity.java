@@ -27,6 +27,7 @@ public class ListResultActivity extends ListActivity{
     String[] arrPlaceName, arrPlaceAddress, arrPlaceLat, arrPlaceLong, arrPlaceDistance;
     String company;
     String placeName, placeAddress, placeLat, placeLong;
+	private String category;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,7 @@ public class ListResultActivity extends ListActivity{
 			Toast.makeText(getApplicationContext(), "No Data", Toast.LENGTH_SHORT).show();
 		} else {
 			if (bundle.getString("category").equals("gas_station")){
+				category = bundle.getString("category");
 				arrPlaceName = bundle.getStringArray("spbu_name");
 				company = bundle.getString("spbu_company");
 				arrPlaceAddress = bundle.getStringArray("spbu_address");
@@ -105,6 +107,7 @@ public class ListResultActivity extends ListActivity{
 					mapsActivity.putExtra("place_address", placeAddress);
 					mapsActivity.putExtra("place_lat", placeLat);
 					mapsActivity.putExtra("place_long", placeLong);
+					mapsActivity.putExtra("category", category);
 					startActivity(mapsActivity);
 					
 				} else 	Toast.makeText(getApplicationContext(), "Maaf tidak ada koneksi internet", 

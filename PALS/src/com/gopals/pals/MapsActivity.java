@@ -59,7 +59,7 @@ public class MapsActivity extends FragmentActivity implements
 
 	private GoogleApiClient mGoogleApiClient;
 	private LocationRequest mLocationRequest;
-	String placeName, placeAddress;
+	String placeName, placeAddress, placeDistance;
 	Double placeLat, placeLong;
 	final Context context = this;
 	private String category;
@@ -75,6 +75,7 @@ public class MapsActivity extends FragmentActivity implements
 		placeAddress = getIntent().getStringExtra("place_address");
 		placeLat = Double.valueOf(getIntent().getStringExtra("place_lat"));
 		placeLong = Double.valueOf(getIntent().getStringExtra("place_long"));
+		placeDistance = getIntent().getStringExtra("place_distance");
 		category = getIntent().getStringExtra("category");
 		setUpMap();
 

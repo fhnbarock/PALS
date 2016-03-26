@@ -3,7 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#ffffff" >
+    android:background="#e6e6e6">
+    
+    <TextView
+        android:id="@+id/aboutLbl"
+        style="@style/BlackText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:layout_marginTop="15dp"
+        android:text="ABOUT"
+        android:textSize="28sp" />
     
     <LinearLayout 
         android:layout_width="match_parent"
@@ -13,19 +23,25 @@
         android:orientation="vertical">
         
         <TextView 
+            android:id="@+id/developersLbl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="20dp"
-            android:text="PALS by Go-Pals"/>
+            android:text="PALS by Go-Pals"
+            android:textColor="#000000"
+            android:textSize="16sp"/>
         
-        <TextView 
+        <TextView
+            android:id="@+id/copyrightLbl" 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:layout_marginLeft="20dp"
-            android:text="©2016 Go-Pals."/>
+            android:text="©2016 Go-Pals."
+            android:textColor="#666666"
+            android:textSize="14sp"/>
     </LinearLayout>
     <LinearLayout 
         android:layout_width="match_parent"
@@ -35,12 +51,15 @@
         android:orientation="vertical">
         
         <TextView 
+            android:id="@+id/versionLbl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="20dp"
-            android:text="Version"/>
+            android:text="Version"
+            android:textColor="#000000"
+            android:textSize="16sp"/>
         
         <TextView
             android:id="@+id/versionName" 
@@ -48,7 +67,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:layout_marginLeft="20dp"
-            android:text="Version Name"/>
+            android:text="Version Name"
+            android:textColor="#666666"
+            android:textSize="14sp"/>
     </LinearLayout>
     <LinearLayout 
         android:id="@+id/rateApps"
@@ -67,11 +88,14 @@
             android:text=""/>
         
         <TextView 
+            android:id="@+id/rateLbl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="35dp"
             android:layout_marginLeft="20dp"
-            android:text="Rate Our Apps"/>
+            android:text="Rate Our Apps"
+            android:textColor="#000000"
+            android:textSize="18sp"/>
     </LinearLayout>
 
 </LinearLayout>

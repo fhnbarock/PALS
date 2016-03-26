@@ -2,13 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="#e6e6e6" >
 
     <LinearLayout
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:paddingLeft="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:id="@+id/findATM"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -20,24 +20,24 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="5dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/icbutton_atm" />
         
         <TextView
+            android:id="@+id/atmLbl"
             style="@style/WhiteText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ATM"
-            android:textSize="30sp" />
+            android:text="Find ATM"
+            android:textSize="20sp" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:paddingLeft="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:id="@+id/findGasStation"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -49,22 +49,22 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="5dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/icbutton_spbu" />
 
         <TextView
+            android:id="@+id/gasStationLbl"
             style="@style/WhiteText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gas Station"
-            android:textSize="30sp" />
+            android:text="Find Gas Station"
+            android:textSize="20sp" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_margin="20dp"
-        android:paddingLeft="20dp"
+        android:layout_margin="15dp"
         android:id="@+id/findRepairShop"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -76,17 +76,18 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="5dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/icbutton_bengkel" />
 
         <TextView
+            android:id="@+id/repairShopLbl"
             style="@style/WhiteText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Repair Shop"
-            android:textSize="30sp" />
+            android:text="Find Repair Shop"
+            android:textSize="20sp" />
     </LinearLayout>
 
 </LinearLayout>

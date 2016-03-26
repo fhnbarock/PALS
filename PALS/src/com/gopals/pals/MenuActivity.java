@@ -1,7 +1,11 @@
 package com.gopals.pals;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -36,6 +41,16 @@ public class MenuActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_menu);
+		
+		TextView atmLbl = (TextView)findViewById(R.id.atmLbl);
+		TextView gasStationLbl = (TextView)findViewById(R.id.gasStationLbl);
+		TextView repairShopLbl = (TextView)findViewById(R.id.repairShopLbl);
+		Typeface bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");
+		atmLbl.setTypeface(bariol);
+		gasStationLbl.setTypeface(bariol);
+		repairShopLbl.setTypeface(bariol);
+		ActionBar bar = getActionBar();
+		bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1a1a1a")));
 		
 		if (!isGooglePlayServicesAvailable()) {
             finish();

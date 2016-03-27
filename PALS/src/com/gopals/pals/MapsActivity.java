@@ -14,12 +14,9 @@ import org.json.JSONObject;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -94,9 +91,8 @@ public class MapsActivity extends FragmentActivity implements
 
 			@Override
 			public boolean onMarkerClick(Marker marker) {
-				// TODO Auto-generated method stub
 				final Dialog dialog = new Dialog(context);
-				dialog.setContentView(R.layout.activity_info_location);
+				dialog.setContentView(R.layout.dialog_info_location);
 				dialog.setTitle("Information");
 				Button getDirections = (Button) dialog
 						.findViewById(R.id.btn_get_direction);
@@ -121,24 +117,19 @@ public class MapsActivity extends FragmentActivity implements
 
 					@Override
 					public void onClick(View v) {
-						// TODO Auto-generated method stub
-						Network network = new Network();
-						if (isNetworkConnected(getApplicationContext())) {
+						Network ic = new Network();
+						if (ic.isNetworkConnected(getApplicationContext())) {
 							try {
 								String url = getDirectionsUrl(origin,
 										new LatLng(placeLat, placeLong));
 								DownloadTask downloadTask = new DownloadTask();
-								// Start downloading json data from Google
-								// Directions
-								// API
 								downloadTask.execute(url);
 								dialog.dismiss();
 							} catch (Exception e) {
 								Toast.makeText(getApplicationContext(),
-										"Slow Internet Connection",
+										"No Internet Connection",
 										Toast.LENGTH_LONG).show();
 							}
-
 						} else {
 							Toast.makeText(getApplicationContext(),
 									"No Internet Connection", Toast.LENGTH_LONG)
@@ -147,32 +138,18 @@ public class MapsActivity extends FragmentActivity implements
 						
 					}
 
-					private boolean isNetworkConnected(Context ctx) {
-						// TODO Auto-generated method stub
-						ConnectivityManager cm = (ConnectivityManager) ctx
-								.getSystemService(Context.CONNECTIVITY_SERVICE);
-						NetworkInfo ni = cm.getActiveNetworkInfo();
-						if (ni == null)
-							return false;
-						if (!ni.isConnected())
-							return false;
-						if (!ni.isAvailable())
-							return false;
-						return true;
-					}
+					
 				});
 				close.setOnClickListener(new OnClickListener() {
 
 					@Override
 					public void onClick(View v) {
-						// TODO Auto-generated method stub
 						dialog.dismiss();
-
 					}
 				});
+				
 				if (!marker.getTitle().equals("Your Position")) {
 					dialog.show();
-
 				}
 				return true;
 			}
@@ -358,28 +335,19 @@ public class MapsActivity extends FragmentActivity implements
 		// Downloading data in non-ui thread
 		@Override
 		protected String doInBackground(String... url) {
-			// TODO Auto-generated method stub
 			String data = "";
-
-			// Fetching the data from web service
 			try {
 				data = downloadUrl(url[0]);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return data;
 		}
 
-		// Executes in UI thread, after the execution of
-		// doInBackground()
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-
 			ParserTask parserTask = new ParserTask();
-
-			// Invokes the thread for parsing the JSON data
 			parserTask.execute(result);
 		}
 	}
@@ -390,24 +358,20 @@ public class MapsActivity extends FragmentActivity implements
 		@Override
 		protected List<List<HashMap<String, String>>> doInBackground(
 				String... jsonData) {
-			// TODO Auto-generated method stub
+			
 			JSONObject jObject;
 			List<List<HashMap<String, String>>> routes = null;
 
 			try {
 				jObject = new JSONObject(jsonData[0]);
 				DirectionsJSONParser parser = new DirectionsJSONParser();
-
-				// Starts parsing data
 				routes = parser.parse(jObject);
-
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return routes;
 		}
 
-		// Executes in UI thread, after the parsing process
 		@Override
 		protected void onPostExecute(List<List<HashMap<String, String>>> result) {
 			ArrayList<LatLng> points = null;

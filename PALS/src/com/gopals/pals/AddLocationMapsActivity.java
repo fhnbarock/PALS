@@ -77,7 +77,7 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 			@Override
 			public boolean onMarkerClick(final Marker marker) {
 				final Dialog dialog = new Dialog(context);
-    			dialog.setContentView(R.layout.activity_confirm_add_location);
+    			dialog.setContentView(R.layout.dialog_add_location);
     			dialog.setTitle("Confirmation");
     			Button confirm = (Button) dialog.findViewById(R.id.btn_confirm);
     			Button close = (Button) dialog.findViewById(R.id.btn_cancel);

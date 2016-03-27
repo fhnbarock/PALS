@@ -5,19 +5,21 @@
     android:orientation="vertical"
     android:background="#e6e6e6" >
     
-    <TextView
-        android:id="@+id/categoryLbl"
-        style="@style/BlackText"
+    <LinearLayout 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="25dp"
-        android:layout_marginTop="15dp"
-        android:text="Select Category"
-        android:textSize="28sp" />
-    
+        android:layout_marginBottom="10dp">
+	    <TextView
+	        android:id="@+id/categoryLbl"
+	        style="@style/BlackText"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="Select Category"
+	        android:textSize="28sp" />
+    </LinearLayout>
     <View 
 	   android:layout_width="fill_parent"
-	   android:layout_height="2dp"       
+	   android:layout_height="1dp"       
 	   android:background="#dbdbdb"/> 
 	   
     <ListView
@@ -26,6 +28,6 @@
       	android:layout_width="fill_parent" />
     <View 
 	   android:layout_width="fill_parent"
-	   android:layout_height="2dp"       
+	   android:layout_height="1dp"       
 	   android:background="#dbdbdb"/> 
 </LinearLayout>

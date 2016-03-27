@@ -72,7 +72,17 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".AddLocationActivity"
+            android:name=".FormATM"
+            android:logo="@drawable/icon"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".FormGasStation"
+            android:logo="@drawable/icon"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".FormRepairShop"
             android:logo="@drawable/icon"
             android:screenOrientation="portrait" >
         </activity>

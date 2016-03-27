@@ -85,8 +85,14 @@ public class AddLocationMapsActivity extends FragmentActivity implements
     			confirm.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						Intent in = new Intent(AddLocationMapsActivity.this, AddLocationActivity.class);
-						in.putExtra("category", category);
+						Intent in = null;
+						if(category.equals("ATM")){
+							in = new Intent(AddLocationMapsActivity.this, FormATM.class);
+						} else if(category.equals("Gas Station")){
+							in = new Intent(AddLocationMapsActivity.this, FormGasStation.class);
+						} else if(category.equals("Repair Shop")){
+							in = new Intent(AddLocationMapsActivity.this, FormRepairShop.class);
+						}
 						in.putExtra("latitude", marker.getPosition().latitude);
 						in.putExtra("longitude", marker.getPosition().longitude);
 						startActivity(in);

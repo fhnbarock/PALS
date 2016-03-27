@@ -125,18 +125,21 @@ public class FindGasStation extends Activity implements
 			public void onClick(View v) {
 				company = (String) SpinnerCompany.getSelectedItem();
 				radiusStr = radiusAmount[SpinnerRadius.getSelectedItemPosition()];
-				
-				if(company.equals("Select Company") || radiusStr.equals("Select Radius")){
-					Toast.makeText(FindGasStation.this, "Please Select Company and Radius", 
-							Toast.LENGTH_SHORT).show();
-				} else {
-					if (currentLocation!=null){
-						new GetGasStation().execute();
-					}else{
-						Toast.makeText(getApplicationContext(), "Cannot Detect Your Location, " +
-								"Please Wait and Try Again", Toast.LENGTH_SHORT).show();
-					}
-				}			
+				Network ic = new Network();
+				if (ic.isNetworkConnected(getApplicationContext())) {
+					if(company.equals("Select Company") || radiusStr.equals("Select Radius")){
+						Toast.makeText(FindGasStation.this, "Please Select Company and Radius", 
+								Toast.LENGTH_SHORT).show();
+					} else {
+						if (currentLocation!=null){
+							new GetGasStation().execute();
+						}else{
+							Toast.makeText(getApplicationContext(), "Cannot Detect Your Location, " +
+									"Please Wait and Try Again", Toast.LENGTH_SHORT).show();
+						}
+					} 
+				} else 	Toast.makeText(getApplicationContext(), "No Internet Connection", 
+						Toast.LENGTH_SHORT).show();
 			}
 		});
 	}

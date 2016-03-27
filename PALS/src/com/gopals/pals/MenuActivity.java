@@ -166,8 +166,8 @@ public class MenuActivity extends Activity implements
         	startActivity(about);
         	break;
         case R.id.action_add_location:
-        	Intent addLocation = new Intent(MenuActivity.this, AddLocationMapsActivity.class);
-        	startActivity(addLocation);
+        	Intent categoryAddLocation = new Intent(MenuActivity.this, CategoryAddLocation.class);
+        	startActivity(categoryAddLocation);
         	break;
         default:
             return super.onOptionsItemSelected(item);

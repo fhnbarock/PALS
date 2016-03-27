@@ -116,18 +116,21 @@ public class FindATM extends Activity implements
 			public void onClick(View v) {
 				bankName = (String) SpinnerBank.getSelectedItem();
 				radiusStr = radiusAmount[SpinnerRadius.getSelectedItemPosition()];
-				
-				if(bankName.equals("Select Bank") || radiusStr.equals("Select Radius")){
-					Toast.makeText(FindATM.this, "Please Select Bank and Radius", 
-							Toast.LENGTH_SHORT).show();
-				} else {
-					if (currentLocation!=null){
-						new GetATM().execute();
-					}else{
-						Toast.makeText(getApplicationContext(), "Cannot Detect Your Location, " +
-								"Please Wait and Try Again", Toast.LENGTH_SHORT).show();
+				Network ic = new Network();
+				if (ic.isNetworkConnected(getApplicationContext())) {
+					if(bankName.equals("Select Bank") || radiusStr.equals("Select Radius")){
+						Toast.makeText(FindATM.this, "Please Select Bank and Radius", 
+								Toast.LENGTH_SHORT).show();
+					} else {
+						if (currentLocation!=null){
+							new GetATM().execute();
+						}else{
+							Toast.makeText(getApplicationContext(), "Cannot Detect Your Location, " +
+									"Please Wait and Try Again", Toast.LENGTH_SHORT).show();
+						}
 					}
-				}
+				} else 	Toast.makeText(getApplicationContext(), "No Internet Connection", 
+						Toast.LENGTH_SHORT).show();
 			}
 		});
 	}

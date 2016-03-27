@@ -37,23 +37,25 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 			.getSimpleName();
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
-	private GoogleMap gMap; // Might be null if Google Play services APK is not
-							// available.
+	private GoogleMap gMap;
 	private GoogleApiClient mGoogleApiClient;
 	private LocationRequest mLocationRequest;
+	String category;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_maps_add_location);
+		
+		category = getIntent().getStringExtra("category");
+		
 		setUpMap();
-
+		
 		mGoogleApiClient = new GoogleApiClient.Builder(this)
 				.addConnectionCallbacks(this)
 				.addOnConnectionFailedListener(this)
 				.addApi(LocationServices.API).build();
 
-		// Create the LocationRequest object
 		mLocationRequest = LocationRequest.create()
 				.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 				.setInterval(3 * 1000) // 3 seconds, in milliseconds
@@ -62,55 +64,39 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 
 			@Override
 			public void onMapClick(LatLng latLng) {
-				// TODO Auto-generated method stub
 				MarkerOptions markerOptions = new MarkerOptions();
-
-				// Setting the position for the marker
 				markerOptions.position(latLng);
-
-				// Setting the title for the marker.
-				// This will be displayed on taping the marker
 				
-
-				// Clears the previously touched position
 				gMap.clear();
-
-				// Animating to the touched position
 				gMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-
-				// Placing a marker on the touched position
 				gMap.addMarker(markerOptions);
-
 			}
 		});
+		
 		gMap.setOnMarkerClickListener(new OnMarkerClickListener() {
-			
 			@Override
 			public boolean onMarkerClick(final Marker marker) {
-				// TODO Auto-generated method stub
 				final Dialog dialog = new Dialog(context);
     			dialog.setContentView(R.layout.activity_confirm_add_location);
     			dialog.setTitle("Confirmation");
     			Button confirm = (Button) dialog.findViewById(R.id.btn_confirm);
     			Button close = (Button) dialog.findViewById(R.id.btn_cancel);
+    			
     			confirm.setOnClickListener(new OnClickListener() {
-					
 					@Override
 					public void onClick(View v) {
-						// TODO Auto-generated method stub
 						Intent in = new Intent(AddLocationMapsActivity.this, AddLocationActivity.class);
+						in.putExtra("category", category);
 						in.putExtra("latitude", marker.getPosition().latitude);
 						in.putExtra("longitude", marker.getPosition().longitude);
 						startActivity(in);
 					}
 				});
+    			
     			close.setOnClickListener(new OnClickListener() {
-					
 					@Override
 					public void onClick(View v) {
-						// TODO Auto-generated method stub
 						dialog.dismiss();
-						
 					}
 				});
     			dialog.show();
@@ -139,23 +125,16 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 	}
 
 	private void setUpMap() {
-		// Do a null check to confirm that we have not already instantiated the
-		// map.
 		if (gMap == null) {
-			// Try to obtain the map from the SupportMapFragment.
 			gMap = ((SupportMapFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.map_add_Location	)).getMap();
-			// Check if we were successful in obtaining the map.
 			if (gMap != null) {
-				// mMap.addMarker(new MarkerOptions().position(new LatLng(0,
-				// 0)).title("Marker"));
-
 				gMap.getUiSettings().setRotateGesturesEnabled(false);
 			}
 		}
 	}
 
-	private void handleNewLocation(Location location) {
+	private void handleView(Location location) {
 		Log.d(TAG, location.toString());
 
 		double currentLatitude = location.getLatitude();
@@ -163,9 +142,6 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 
 		LatLng latLng = new LatLng(currentLatitude, currentLongitude);
 
-		// mMap.addMarker(new MarkerOptions().position(new
-		// LatLng(currentLatitude,
-		// currentLongitude)).title("Current Location"));
 		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng,
 				15);
 		gMap.animateCamera(cameraUpdate);
@@ -179,7 +155,7 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 			LocationServices.FusedLocationApi.requestLocationUpdates(
 					mGoogleApiClient, mLocationRequest, this);
 		} else {
-			handleNewLocation(location);
+			handleView(location);
 		}
 	}
 
@@ -190,36 +166,19 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
-		/*
-		 * Google Play services can resolve some errors it detects. If the error
-		 * has a resolution, try sending an Intent to start a Google Play
-		 * services activity that can resolve error.
-		 */
 		if (connectionResult.hasResolution()) {
 			try {
-				// Start an Activity that tries to resolve the error
 				connectionResult.startResolutionForResult(this,
-						CONNECTION_FAILURE_RESOLUTION_REQUEST);
-				/*
-				 * Thrown if Google Play services canceled the original
-				 * PendingIntent
-				 */
+						CONNECTION_FAILURE_RESOLUTION_REQUEST);	
 			} catch (IntentSender.SendIntentException e) {
-				// Log the error
 				e.printStackTrace();
 			}
 		} else {
-			/*
-			 * If no resolution is available, display a dialog to the user with
-			 * the error.
-			 */
 			Log.i(TAG, "Location services connection failed with code "
 					+ connectionResult.getErrorCode());
 		}
 	}
 
 	@Override
-	public void onLocationChanged(Location location) {
-		handleNewLocation(location);
-	}
+	public void onLocationChanged(Location location) {}
 }

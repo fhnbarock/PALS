@@ -29,7 +29,7 @@ public class ListResultActivity extends ListActivity{
     public static final String TAG_DISTANCE = "placeDistance";
     ArrayList<HashMap<String, String>> placeList; 
     String[] arrPlaceName, arrPlaceAddress, arrPlaceLat, arrPlaceLong, arrPlaceRadius;
-    String company;
+    String company, bankName;
     String placeName, placeAddress, placeLat, placeLong, placeRadius;
 	private String category;
     
@@ -59,7 +59,7 @@ public class ListResultActivity extends ListActivity{
 			if (bundle.getString("category").equals("atm")){
 				category = bundle.getString("category");
 				arrPlaceName = bundle.getStringArray("atm_name");
-				company = bundle.getString("bank_name");
+				bankName = bundle.getString("bank_name");
 				arrPlaceAddress = bundle.getStringArray("atm_address");
 				arrPlaceLat = bundle.getStringArray("atm_lat");
 				arrPlaceLong = bundle.getStringArray("atm_long");
@@ -144,7 +144,7 @@ public class ListResultActivity extends ListActivity{
 					mapsActivity.putExtra("category", category);
 					startActivity(mapsActivity);
 					
-				} else 	Toast.makeText(getApplicationContext(), "Maaf tidak ada koneksi internet", 
+				} else 	Toast.makeText(getApplicationContext(), "No Internet Connection", 
 							Toast.LENGTH_SHORT).show();
 			}
 		});

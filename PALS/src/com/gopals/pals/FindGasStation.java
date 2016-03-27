@@ -59,7 +59,7 @@ public class FindGasStation extends Activity implements
     private JSONArray spbuJSON = null;
     private ArrayList<String> spbuNameList, spbuAddressList, spbuLatList, 
     				spbuLongList; 
-    private ArrayList<Double> spbuDistanceList;
+    private ArrayList<Double> spbuRadiusList;
     private ArrayList<Location> locationList;
     String company, radiusStr;
     Location currentLocation;
@@ -130,7 +130,12 @@ public class FindGasStation extends Activity implements
 					Toast.makeText(FindGasStation.this, "Please Select Company and Radius", 
 							Toast.LENGTH_SHORT).show();
 				} else {
-					new GetGasStation().execute();
+					if (currentLocation!=null){
+						new GetGasStation().execute();
+					}else{
+						Toast.makeText(getApplicationContext(), "Cannot Detect Your Location, " +
+								"Please Wait and Try Again", Toast.LENGTH_SHORT).show();
+					}
 				}			
 			}
 		});
@@ -240,14 +245,15 @@ public class FindGasStation extends Activity implements
 			spbuLatList = new ArrayList<String>();
 			spbuLongList = new ArrayList<String>();
 			locationList = new ArrayList<Location>();
-			spbuDistanceList = new ArrayList<Double>();
-			Double dist;
+			spbuRadiusList = new ArrayList<Double>();
+			Double rad;
 			HashMap<String, String> params = new HashMap<String, String>();
             params.put("company", company);
 			JSONParser jParser = new JSONParser();
 			JSONObject json = jParser.makeHttpRequest(GET_SPBU, params);
 	        Log.d("All Data: ", json.toString());
 			try {
+				CalculateRadius cr = new CalculateRadius();
 				int success = json.getInt(TAG_SUCCESS);
 				if (success == 1) {
 					spbuJSON = json.getJSONArray(TAG_GAS_STATION);
@@ -261,14 +267,14 @@ public class FindGasStation extends Activity implements
 							Location spbuLocation = new Location("spbu location");
 							spbuLocation.setLatitude(spbuLatitude);
 							spbuLocation.setLongitude(spbuLongitude);
-							dist = CalculateRadius(currentLocation, spbuLocation);
+							rad = cr.calculateRadius(currentLocation, spbuLocation);
 							
 						    spbuNameList.add(spbuName);
 						    spbuAddressList.add(spbuAddress);
 						    spbuLatList.add(String.valueOf(spbuLatitude));
 						    spbuLongList.add(String.valueOf(spbuLongitude));   
 						    locationList.add(spbuLocation); 
-						    spbuDistanceList.add(dist);
+						    spbuRadiusList.add(rad);
 						}
 					} else {
 						double radius = Double.valueOf(radiusStr);
@@ -281,15 +287,15 @@ public class FindGasStation extends Activity implements
 							Location spbuLocation = new Location("spbu location");
 							spbuLocation.setLatitude(spbuLatitude);
 							spbuLocation.setLongitude(spbuLongitude);
-							dist = CalculateRadius(currentLocation, spbuLocation);
+							rad = cr.calculateRadius(currentLocation, spbuLocation);
 							
-							if(dist<radius){
+							if(rad<radius){
 								spbuNameList.add(spbuName);
 							    spbuAddressList.add(spbuAddress);
 							    spbuLatList.add(String.valueOf(spbuLatitude));
 							    spbuLongList.add(String.valueOf(spbuLongitude));   
 							    locationList.add(spbuLocation); 
-							    spbuDistanceList.add(dist);
+							    spbuRadiusList.add(rad);
 							}
 						}
 					}
@@ -308,26 +314,26 @@ public class FindGasStation extends Activity implements
 			String[] arrayAddress = new String[spbuAddressList.size()];
 			String[] arrayLat = new String[spbuLatList.size()];
 			String[] arrayLong = new String[spbuLongList.size()];
-			Double[] arrayDistance = new Double[spbuDistanceList.size()];
+			Double[] arrayRadius = new Double[spbuRadiusList.size()];
 						
 			arrayName = spbuNameList.toArray(arrayName);
 			arrayAddress = spbuAddressList.toArray(arrayAddress);
 			arrayLat = spbuLatList.toArray(arrayLat);
 			arrayLong = spbuLongList.toArray(arrayLong);
-			arrayDistance = spbuDistanceList.toArray(arrayDistance);
+			arrayRadius = spbuRadiusList.toArray(arrayRadius);
 			String[] sortedName = new String[arrayName.length];
 			String[] sortedAddress = new String[arrayAddress.length];
 			String[] sortedLat = new String[arrayLat.length];
 			String[] sortedLong = new String[arrayLong.length];
-			String[] sortedDistance = new String[arrayLong.length];
-			Double[] sortedDist = Arrays.copyOf(arrayDistance, arrayDistance.length);
-			int[] idx = new int[sortedDist.length];
+			String[] sortedRadius = new String[arrayLong.length];
+			Double[] doubleRadius = Arrays.copyOf(arrayRadius, arrayRadius.length);
+			int[] idx = new int[doubleRadius.length];
 			int index=0;
-			if(sortedDist.length>0){
-				Arrays.sort(sortedDist);
-				for(int i=0; i<sortedDist.length; i++){
-					for(int j=0; j<arrayDistance.length; j++){
-						if(arrayDistance[j]==sortedDist[i]){
+			if(doubleRadius.length>0){
+				Arrays.sort(doubleRadius);
+				for(int i=0; i<doubleRadius.length; i++){
+					for(int j=0; j<arrayRadius.length; j++){
+						if(arrayRadius[j]==doubleRadius[i]){
 							idx[index] = j;
 							index++;
 						}
@@ -338,7 +344,7 @@ public class FindGasStation extends Activity implements
 					sortedAddress[i] = arrayAddress[idx[i]];
 					sortedLat[i] = arrayLat[idx[i]];
 					sortedLong[i] = arrayLong[idx[i]];
-					sortedDistance[i] = sortedDist[i].toString();
+					sortedRadius[i] = doubleRadius[i].toString();
 				}
 			}
 			
@@ -352,29 +358,10 @@ public class FindGasStation extends Activity implements
 				listResult.putExtra("spbu_company", company);
 				listResult.putExtra("spbu_lat", sortedLat);
 				listResult.putExtra("spbu_long", sortedLong);
-				listResult.putExtra("spbu_distance", sortedDistance);
+				listResult.putExtra("spbu_radius", sortedRadius);
 			}
 			startActivity(listResult);
 		}
 	}
-	
-	public double CalculateRadius(Location curLoc, Location destLoc) {
-        int Radius = 6371; // radius of earth in Km
-        double curLat = curLoc.getLatitude();
-        double destLat = destLoc.getLatitude();
-        double curLong = curLoc.getLongitude();
-        double destLong = destLoc.getLongitude();
-        double dLat = Math.toRadians(destLat - curLat);
-        double dLon = Math.toRadians(destLong - curLong);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(curLat))
-                * Math.cos(Math.toRadians(destLat)) * Math.sin(dLon / 2)
-                * Math.sin(dLon / 2);
-        NumberFormat newFormat = new DecimalFormat("#.##");
-        double result = 2 * Math.asin(Math.sqrt(a));
-           
-        return Double.valueOf(newFormat.format(Radius * result));
-    }
-	
 }
 

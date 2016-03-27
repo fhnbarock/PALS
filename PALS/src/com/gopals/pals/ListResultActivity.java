@@ -28,9 +28,9 @@ public class ListResultActivity extends ListActivity{
     public static final String TAG_LONG = "placeLong";
     public static final String TAG_DISTANCE = "placeDistance";
     ArrayList<HashMap<String, String>> placeList; 
-    String[] arrPlaceName, arrPlaceAddress, arrPlaceLat, arrPlaceLong, arrPlaceDistance;
+    String[] arrPlaceName, arrPlaceAddress, arrPlaceLat, arrPlaceLong, arrPlaceRadius;
     String company;
-    String placeName, placeAddress, placeLat, placeLong, placeDistance;
+    String placeName, placeAddress, placeLat, placeLong, placeRadius;
 	private String category;
     
 	@Override
@@ -56,24 +56,32 @@ public class ListResultActivity extends ListActivity{
 			noData.setVisibility(View.VISIBLE);
 			Toast.makeText(getApplicationContext(), "No Data", Toast.LENGTH_SHORT).show();
 		} else {
-			if (bundle.getString("category").equals("gas_station")){
+			if (bundle.getString("category").equals("atm")){
+				category = bundle.getString("category");
+				arrPlaceName = bundle.getStringArray("atm_name");
+				company = bundle.getString("bank_name");
+				arrPlaceAddress = bundle.getStringArray("atm_address");
+				arrPlaceLat = bundle.getStringArray("atm_lat");
+				arrPlaceLong = bundle.getStringArray("atm_long");
+				arrPlaceRadius = bundle.getStringArray("atm_radius");
+			} else if (bundle.getString("category").equals("gas_station")){
 				category = bundle.getString("category");
 				arrPlaceName = bundle.getStringArray("spbu_name");
 				company = bundle.getString("spbu_company");
 				arrPlaceAddress = bundle.getStringArray("spbu_address");
 				arrPlaceLat = bundle.getStringArray("spbu_lat");
 				arrPlaceLong = bundle.getStringArray("spbu_long");
-				arrPlaceDistance = bundle.getStringArray("spbu_distance");
+				arrPlaceRadius = bundle.getStringArray("spbu_radius");
 			}
 			
-			final int[] to = {R.id.placeName, R.id.placeAddress, R.id.placeDistance, R.id.placeLat, R.id.placeLong};
+			final int[] to = {R.id.placeName, R.id.placeAddress, R.id.placeRadius, R.id.placeLat, R.id.placeLong};
 			
 			int x = 0;
 			for(int j=0; j<arrPlaceName.length; j++){
 				HashMap<String, String> map = new HashMap<String, String>();
 				map.put(from[x], arrPlaceName[j]);
 				map.put(from[x+1], arrPlaceAddress[j]);
-				map.put(from[x+2], arrPlaceDistance[j] + " km");
+				map.put(from[x+2], arrPlaceRadius[j] + " km");
 				map.put(from[x+3], arrPlaceLat[j]);
 				map.put(from[x+4], arrPlaceLong[j]);
 				placeList.add(map);
@@ -95,7 +103,7 @@ public class ListResultActivity extends ListActivity{
 				        		TextView addressLbl = (TextView)convertView.findViewById(R.id.placeAddress);
 				        		TextView latLbl = (TextView)convertView.findViewById(R.id.placeLat);
 				        		TextView longLbl = (TextView)convertView.findViewById(R.id.placeLong);
-				        		TextView distanceLbl = (TextView)convertView.findViewById(R.id.placeDistance);
+				        		TextView distanceLbl = (TextView)convertView.findViewById(R.id.placeRadius);
 				        		
 				        		nameLbl.setText(placeList.get(position).get(TAG_NAME));
 				        		addressLbl.setText(placeList.get(position).get(TAG_ADDRESS));
@@ -125,14 +133,14 @@ public class ListResultActivity extends ListActivity{
 					placeAddress = ((TextView) view.findViewById(R.id.placeAddress)).getText().toString();
 					placeLat = ((TextView) view.findViewById(R.id.placeLat)).getText().toString();
 					placeLong = ((TextView) view.findViewById(R.id.placeLong)).getText().toString();
-					placeDistance = ((TextView)view.findViewById(R.id.placeDistance)).getText().toString();
+					placeRadius = ((TextView)view.findViewById(R.id.placeRadius)).getText().toString();
 					
 					Intent mapsActivity = new Intent(getApplicationContext(), MapsActivity.class);
 					mapsActivity.putExtra("place_name", placeName);
 					mapsActivity.putExtra("place_address", placeAddress);
 					mapsActivity.putExtra("place_lat", placeLat);
 					mapsActivity.putExtra("place_long", placeLong);
-					mapsActivity.putExtra("place_distance", placeDistance);
+					mapsActivity.putExtra("place_distance", placeRadius);
 					mapsActivity.putExtra("category", category);
 					startActivity(mapsActivity);
 					

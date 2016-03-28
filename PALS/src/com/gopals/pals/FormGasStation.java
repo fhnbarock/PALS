@@ -57,8 +57,8 @@ public class FormGasStation extends Activity {
         
         MySpinnerAdapter adapterCompany = new MySpinnerAdapter(
         		this, android.R.layout.simple_spinner_dropdown_item, companySpr);
-        final Spinner SpinnerCompany = (Spinner) findViewById(R.id.newCompanySpr);
-        SpinnerCompany.setAdapter(adapterCompany);
+        final Spinner spinnerCompany = (Spinner) findViewById(R.id.newCompanySpr);
+        spinnerCompany.setAdapter(adapterCompany);
         
         TextView gasStationLbl = (TextView)findViewById(R.id.newGasStationLbl);
         TextView gasStationNameLbl = (TextView)findViewById(R.id.newGasStationNameLbl);
@@ -82,7 +82,7 @@ public class FormGasStation extends Activity {
 			@Override
 			public void onClick(View v) {
 				gasStationName = (String) gasStationNameText.getText().toString().trim();
-				company = (String) SpinnerCompany.getSelectedItem();
+				company = (String) spinnerCompany.getSelectedItem();
 				gasStationAddress = (String) gasStationAddressText.getText().toString().trim();
 				
 				Network ic = new Network();
@@ -161,5 +161,4 @@ public class FormGasStation extends Activity {
             }
         }
 	}
-
 }

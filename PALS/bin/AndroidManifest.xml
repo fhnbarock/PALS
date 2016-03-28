@@ -42,6 +42,11 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".FindRepairShop"
+            android:logo="@drawable/icon"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".ListResultActivity"
             android:logo="@drawable/icon"
             android:screenOrientation="portrait" >

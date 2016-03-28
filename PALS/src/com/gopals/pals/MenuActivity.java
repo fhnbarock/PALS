@@ -81,7 +81,6 @@ public class MenuActivity extends Activity implements
 		});
         
         LinearLayout btnRepairShop = (LinearLayout)findViewById(R.id.findRepairShop);
-        /*
         btnRepairShop.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -89,7 +88,6 @@ public class MenuActivity extends Activity implements
 				startActivity(findRepairShop);
 			}
 		});
-		*/
 	}
 	
 	@Override

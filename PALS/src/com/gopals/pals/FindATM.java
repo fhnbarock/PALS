@@ -24,9 +24,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -182,31 +179,6 @@ public class FindATM extends Activity implements
             GooglePlayServicesUtil.getErrorDialog(status, this, 0).show();
             return false;
         }
-    }
-	
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
- 
-        return super.onCreateOptionsMenu(menu);
-    }
-	
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.action_help:
-        	Intent help = new Intent(FindATM.this, Help.class);
-        	startActivity(help);
-        	break;
-        case R.id.action_about:
-        	Intent about = new Intent(FindATM.this, About.class);
-        	startActivity(about);
-        	break;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
-        return true;
     }
 	
 	protected void createLocationRequest() {

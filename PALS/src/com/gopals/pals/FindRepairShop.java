@@ -1,9 +1,12 @@
 package com.gopals.pals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -17,16 +20,16 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class FindRepairShop extends Activity implements
@@ -47,12 +50,13 @@ public class FindRepairShop extends Activity implements
 	public static final String TAG_ID = "id_bengkel";
     public static final String TAG_NAME = "bengkel_name";
     public static final String TAG_ADDRESS = "bengkel_address";
+    public static final String TAG_PHONE = "telephone";
     public static final String TAG_LATITUDE = "latitude";
     public static final String TAG_LONGITUDE = "longitude";
     
     private JSONArray bengkelJSON = null;
-    private ArrayList<String> bengkelNameList, bengkelAddressList, bengkelLatList, 
-    				bengkelLongList; 
+    private ArrayList<String> bengkelNameList, bengkelAddressList, bengkelPhoneList,
+    		bengkelLatList,	bengkelLongList; 
     private ArrayList<Double> bengkelRadiusList;
     private ArrayList<Location> locationList;
     String vehicleType, brand, radiusStr;
@@ -109,6 +113,36 @@ public class FindRepairShop extends Activity implements
         SpinnerRadius.setAdapter(adapterRadius);
         
         SpinnerVehicle.setOnItemSelectedListener(this);
+        
+        TextView repairShopLbl = (TextView)findViewById(R.id.repairShopLbl);
+        Button findButton = (Button)findViewById(R.id.repairShopFindButton);
+        repairShopLbl.setTypeface(bariol, Typeface.BOLD);
+        findButton.setTypeface(bariol);
+        
+        findButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				vehicleType = (String) SpinnerVehicle.getSelectedItem();
+				brand = (String) SpinnerBrand.getSelectedItem();
+				radiusStr = radiusAmount[SpinnerRadius.getSelectedItemPosition()];
+				Network ic = new Network();
+				if (ic.isNetworkConnected(getApplicationContext())) {
+					if(vehicleType.equals("Select Vehicle Type") || brand.equals("Select Brand") ||
+							radiusStr.equals("Select Radius")){
+						Toast.makeText(FindRepairShop.this, "Please Select Vehicle Type, Brand and Radius", 
+								Toast.LENGTH_SHORT).show();
+					} else {
+						if (currentLocation!=null){
+							new GetRepairShop().execute();
+						}else{
+							Toast.makeText(getApplicationContext(), "Cannot Detect Your Location, " +
+									"Please Wait and Try Again", Toast.LENGTH_SHORT).show();
+						}
+					} 
+				} else 	Toast.makeText(getApplicationContext(), "No Internet Connection", 
+						Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 	@Override
@@ -160,31 +194,6 @@ public class FindRepairShop extends Activity implements
         }
     }
 	
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
- 
-        return super.onCreateOptionsMenu(menu);
-    }
-	
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.action_help:
-        	Intent help = new Intent(FindRepairShop.this, Help.class);
-        	startActivity(help);
-        	break;
-        case R.id.action_about:
-        	Intent about = new Intent(FindRepairShop.this, About.class);
-        	startActivity(about);
-        	break;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
-        return true;
-    }
-	
 	protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(INTERVAL);
@@ -224,5 +233,152 @@ public class FindRepairShop extends Activity implements
 		SpinnerBrand.setAdapter(adapterBrand);
 	}
 
-	
+	public class GetRepairShop extends AsyncTask<Void, Void, Boolean> {
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			pDialog = new ProgressDialog(FindRepairShop.this);
+			pDialog.setMessage("Loading...");
+			pDialog.setIndeterminate(false);
+			pDialog.setCancelable(true);
+			pDialog.show();
+		}
+		
+		@Override
+		protected Boolean doInBackground(Void... arg0) {
+			bengkelNameList = new ArrayList<String>();
+			bengkelAddressList = new ArrayList<String>();
+			bengkelPhoneList = new ArrayList<String>();
+			bengkelLatList = new ArrayList<String>();
+			bengkelLongList = new ArrayList<String>();
+			locationList = new ArrayList<Location>();
+			bengkelRadiusList = new ArrayList<Double>();
+			Double rad;
+			HashMap<String, String> params = new HashMap<String, String>();
+            params.put("vehicle_type", vehicleType);
+            params.put("brand", brand);
+			JSONParser jParser = new JSONParser();
+			JSONObject json = jParser.makeHttpRequest(GET_BENGKEL, params);
+	        Log.d("All Data: ", json.toString());
+			try {
+				CalculateRadius cr = new CalculateRadius();
+				int success = json.getInt(TAG_SUCCESS);
+				if (success == 1) {
+					bengkelJSON = json.getJSONArray(TAG_REPAIR_SHOP);
+					if(radiusStr.equals("Display All")){
+						for (int i = 0; i < bengkelJSON.length(); i++) {
+							JSONObject c = bengkelJSON.getJSONObject(i);
+							String bengkelName = c.getString(TAG_NAME);
+							String bengkelAddress = c.getString(TAG_ADDRESS);
+							String bengkelPhone = c.getString(TAG_PHONE);
+							Double bengkelLatitude = c.getDouble(TAG_LATITUDE);
+							Double bengkelLongitude = c.getDouble(TAG_LONGITUDE);
+							Location bengkelLocation = new Location("bengkel location");
+							bengkelLocation.setLatitude(bengkelLatitude);
+							bengkelLocation.setLongitude(bengkelLongitude);
+							rad = cr.calculateRadius(currentLocation, bengkelLocation);
+							
+						    bengkelNameList.add(bengkelName);
+						    bengkelAddressList.add(bengkelAddress);
+						    bengkelPhoneList.add(bengkelPhone);
+						    bengkelLatList.add(String.valueOf(bengkelLatitude));
+						    bengkelLongList.add(String.valueOf(bengkelLongitude));   
+						    locationList.add(bengkelLocation); 
+						    bengkelRadiusList.add(rad);
+						}
+					} else {
+						double radius = Double.valueOf(radiusStr);
+						for (int i = 0; i < bengkelJSON.length(); i++) {
+							JSONObject c = bengkelJSON.getJSONObject(i);
+							String bengkelName = c.getString(TAG_NAME);
+							String bengkelAddress = c.getString(TAG_ADDRESS);
+							String bengkelPhone = c.getString(TAG_PHONE);
+							Double bengkelLatitude = c.getDouble(TAG_LATITUDE);
+							Double bengkelLongitude = c.getDouble(TAG_LONGITUDE);
+							Location bengkelLocation = new Location("bengkel location");
+							bengkelLocation.setLatitude(bengkelLatitude);
+							bengkelLocation.setLongitude(bengkelLongitude);
+							rad = cr.calculateRadius(currentLocation, bengkelLocation);
+							
+							if(rad<radius){
+								bengkelNameList.add(bengkelName);
+							    bengkelAddressList.add(bengkelAddress);
+							    bengkelPhoneList.add(bengkelPhone);
+							    bengkelLatList.add(String.valueOf(bengkelLatitude));
+							    bengkelLongList.add(String.valueOf(bengkelLongitude));   
+							    locationList.add(bengkelLocation); 
+							    bengkelRadiusList.add(rad);
+							}
+						}
+					}
+				} 
+			} catch (JSONException e) {
+				 e.printStackTrace();
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			
+			String[] arrayName = new String[bengkelNameList.size()];
+			String[] arrayAddress = new String[bengkelAddressList.size()];
+			String[] arrayPhone = new String[bengkelPhoneList.size()];
+			String[] arrayLat = new String[bengkelLatList.size()];
+			String[] arrayLong = new String[bengkelLongList.size()];
+			Double[] arrayRadius = new Double[bengkelRadiusList.size()];
+						
+			arrayName = bengkelNameList.toArray(arrayName);
+			arrayAddress = bengkelAddressList.toArray(arrayAddress);
+			arrayPhone = bengkelPhoneList.toArray(arrayPhone);
+			arrayLat = bengkelLatList.toArray(arrayLat);
+			arrayLong = bengkelLongList.toArray(arrayLong);
+			arrayRadius = bengkelRadiusList.toArray(arrayRadius);
+			String[] sortedName = new String[arrayName.length];
+			String[] sortedAddress = new String[arrayAddress.length];
+			String[] sortedPhone = new String[arrayPhone.length];
+			String[] sortedLat = new String[arrayLat.length];
+			String[] sortedLong = new String[arrayLong.length];
+			String[] sortedRadius = new String[arrayLong.length];
+			Double[] doubleRadius = Arrays.copyOf(arrayRadius, arrayRadius.length);
+			int[] idx = new int[doubleRadius.length];
+			int index=0;
+			if(doubleRadius.length>0){
+				Arrays.sort(doubleRadius);
+				for(int i=0; i<doubleRadius.length; i++){
+					for(int j=0; j<arrayRadius.length; j++){
+						if(arrayRadius[j]==doubleRadius[i]){
+							idx[index] = j;
+							index++;
+						}
+					}
+				}
+				for(int i=0; i<idx.length; i++){
+					sortedName[i] = arrayName[idx[i]];
+					sortedAddress[i] = arrayAddress[idx[i]];
+					sortedPhone[i] = arrayPhone[idx[i]];
+					sortedLat[i] = arrayLat[idx[i]];
+					sortedLong[i] = arrayLong[idx[i]];
+					sortedRadius[i] = doubleRadius[i].toString();
+				}
+			}
+			
+			pDialog.dismiss();
+			
+			Intent listResult = new Intent(FindRepairShop.this, ListResultActivity.class);
+			if(arrayName.length>0){
+				listResult.putExtra("category", "repair_shop");
+				listResult.putExtra("bengkel_name", sortedName);
+				listResult.putExtra("bengkel_address", sortedAddress);
+				listResult.putExtra("bengkel_phone", sortedPhone);
+				listResult.putExtra("vehicle_type", vehicleType);
+				listResult.putExtra("brand", brand);
+				listResult.putExtra("bengkel_lat", sortedLat);
+				listResult.putExtra("bengkel_long", sortedLong);
+				listResult.putExtra("bengkel_radius", sortedRadius);
+			}
+			startActivity(listResult);
+		}
+	}
 }

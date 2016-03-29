@@ -18,7 +18,7 @@
      <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin= "15dp"
+        android:layout_margin="15dp"
         android:background="@drawable/spinner_border"
         android:orientation="horizontal" >
 
@@ -64,16 +64,21 @@
             android:layout_gravity="center"
             android:src="@drawable/dropdown" />
     </RelativeLayout>
-
-    <Button
-        android:id="@+id/atmFindButton"
-        style="@style/WhiteText"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
+	
+    <LinearLayout 
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button"
-        android:text="Find"
-        android:textColor="#66bb6a" />
-
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp">
+        
+	    <Button
+	        android:id="@+id/atmFindButton"
+	        style="@style/WhiteText"
+	        android:layout_gravity="center"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:background="@drawable/rounded_button"
+	        android:text="Find"
+	        android:textColor="#66bb6a" />
+	</LinearLayout>
 </LinearLayout>

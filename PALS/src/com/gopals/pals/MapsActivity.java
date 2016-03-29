@@ -61,8 +61,7 @@ public class MapsActivity extends FragmentActivity implements
 	final Context context = this;
 	private String category;
 	private LatLng origin;
-	Network download = new Network();
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

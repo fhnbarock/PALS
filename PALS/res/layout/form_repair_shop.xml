@@ -39,7 +39,7 @@
                     android:id="@+id/newRepairShopNameLbl"
                     android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:text="Repair Shop Name"
+                    android:text="Repair Shop Name *"
                     android:textSize="16sp" />
 
                 <EditText
@@ -69,7 +69,7 @@
                     android:id="@+id/newVehicleLbl"
                     android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:text="Vehicle Type"
+                    android:text="Vehicle Type *"
                     android:textSize="16sp" />
 
                 <RelativeLayout
@@ -115,7 +115,7 @@
                     android:id="@+id/newBrandLbl"
                     android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:text="Brand"
+                    android:text="Brand *"
                     android:textSize="16sp" />
 
                 <RelativeLayout
@@ -161,7 +161,7 @@
                     android:id="@+id/newRepairShopAddressLbl"
                     android:layout_width="90dp"
                     android:layout_height="wrap_content"
-                    android:text="Address"
+                    android:text="Address *"
                     android:textSize="16sp" />
 
                 <EditText

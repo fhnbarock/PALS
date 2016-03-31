@@ -2,12 +2,17 @@ package com.gopals.pals;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -66,8 +71,10 @@ public class MenuActivity extends Activity implements
         btnATM.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent findATM = new Intent(MenuActivity.this, FindATM.class);
-				startActivity(findATM);
+				if(checkLocation()){
+					Intent findATM = new Intent(MenuActivity.this, FindATM.class);
+					startActivity(findATM);
+				} else showDialog();
 			}
 		});
         
@@ -75,8 +82,10 @@ public class MenuActivity extends Activity implements
         btnGasStation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent findGasStation = new Intent(MenuActivity.this, FindGasStation.class);
-				startActivity(findGasStation);
+				if(checkLocation()){
+					Intent findGasStation = new Intent(MenuActivity.this, FindGasStation.class);
+					startActivity(findGasStation);
+				} else showDialog();
 			}
 		});
         
@@ -84,8 +93,10 @@ public class MenuActivity extends Activity implements
         btnRepairShop.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent findRepairShop = new Intent(MenuActivity.this, FindRepairShop.class);
-				startActivity(findRepairShop);
+				if(checkLocation()){
+					Intent findRepairShop = new Intent(MenuActivity.this, FindRepairShop.class);
+					startActivity(findRepairShop);
+				} else showDialog();
 			}
 		});
 	}
@@ -189,4 +200,39 @@ public class MenuActivity extends Activity implements
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, this);
     }
+	
+	private boolean checkLocation(){
+		LocationManager locationManager = null;
+		boolean gps_enabled = false, network_enabled = false;
+		if(locationManager==null)
+			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	    try{
+	    	gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+	    }catch(Exception ex){}
+	    try{
+	    	network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+	    }catch(Exception ex){}
+	    
+	    if(!gps_enabled && !network_enabled) return false;
+	    
+	    return true;
+	}
+	
+	private void showDialog(){
+		final AlertDialog.Builder dialog = new AlertDialog.Builder(MenuActivity.this);
+        dialog.setMessage("Location service is disabled");
+        dialog.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+            	dialog.cancel();
+            }
+        });
+ 
+        dialog.setNegativeButton("Settings", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+            	Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(myIntent);
+            }
+        });
+        dialog.show();
+	}
 }

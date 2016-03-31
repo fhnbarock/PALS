@@ -110,12 +110,12 @@ public class ListResultActivity extends ListActivity{
 					placeRadius = ((TextView)view.findViewById(R.id.placeRadius)).getText().toString();
 					
 					Intent mapsActivity = new Intent(getApplicationContext(), MapsActivity.class);
-					if(placePhone.equals("")) mapsActivity.putExtra("place_phone", placePhone);
+					if(category.equals("repair_shop")) mapsActivity.putExtra("place_phone", placePhone);
 					mapsActivity.putExtra("place_name", placeName);
 					mapsActivity.putExtra("place_address", placeAddress);
 					mapsActivity.putExtra("place_lat", placeLat);
 					mapsActivity.putExtra("place_long", placeLong);
-					mapsActivity.putExtra("place_distance", placeRadius);
+					mapsActivity.putExtra("place_radius", placeRadius);
 					mapsActivity.putExtra("category", category);
 					startActivity(mapsActivity);
 					

@@ -1,22 +1,22 @@
 package com.gopals.pals;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -24,7 +24,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,25 +55,38 @@ public class MapsActivity extends FragmentActivity implements
 
 	private GoogleApiClient mGoogleApiClient;
 	private LocationRequest mLocationRequest;
-	String placeName, placeAddress, placeDistance;
+	String placeName, placeAddress, placePhone, placeRadius, placeDistance;
 	Double placeLat, placeLong;
 	final Context context = this;
 	private String category;
 	private LatLng origin;
+	Network network = new Network();
+	String distance, duration;
+	Typeface bariol;
+	ArrayList<LatLng> points;
+	PolylineOptions lineOptions;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_maps);
-
+		
+		category = getIntent().getStringExtra("category");
 		placeName = getIntent().getStringExtra("place_name");
 		placeAddress = getIntent().getStringExtra("place_address");
 		placeLat = Double.valueOf(getIntent().getStringExtra("place_lat"));
 		placeLong = Double.valueOf(getIntent().getStringExtra("place_long"));
-		placeDistance = getIntent().getStringExtra("place_distance");
-		category = getIntent().getStringExtra("category");
+		
+		
+		
+		if(category.equals("repair_shop")){
+			placePhone = getIntent().getStringExtra("place_phone");
+		}
+		
 		setUpMap();
-
+		
+		final Typeface bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");
+		
 		mGoogleApiClient = new GoogleApiClient.Builder(this)
 				.addConnectionCallbacks(this)
 				.addOnConnectionFailedListener(this)
@@ -87,60 +99,77 @@ public class MapsActivity extends FragmentActivity implements
 				.setFastestInterval(1 * 1000); // 1 second, in milliseconds
 
 		gMap.setOnMarkerClickListener(new OnMarkerClickListener() {
-
+			
+			TextView tvPhoneLbl, tvPhone;
+			Button phone;
+			
 			@Override
 			public boolean onMarkerClick(Marker marker) {
+				
 				final Dialog dialog = new Dialog(context);
-				dialog.setContentView(R.layout.dialog_info_location);
 				dialog.setTitle("Information");
-				Button getDirections = (Button) dialog
-						.findViewById(R.id.btn_get_direction);
-				Button close = (Button) dialog.findViewById(R.id.btn_close);
-				ImageView img = (ImageView) dialog
-						.findViewById(R.id.imgDescriptor);
-				TextView tvName = (TextView) dialog.findViewById(R.id.tv_name);
-				TextView tvAddress = (TextView) dialog
-						.findViewById(R.id.tv_address);
-				if (category.equals("gas_station")) {
-					tvName.setText("Name\t : " + placeName);
-					tvAddress.setText("Address\t : " + placeAddress);
-					img.setImageDrawable(getResources().getDrawable(
-							R.drawable.ic_launcher));
-				} else if (category.equals("atm")) {
-
-				} else if (category.equals("repair_shop")) {
-
+				if (category.equals("repair_shop")) {
+					dialog.setContentView(R.layout.dialog_info_location2);
+					phone = (Button) dialog.findViewById(R.id.btn_call);
+					tvPhoneLbl = (TextView) dialog.findViewById(R.id.tv_phone_lbl);
+					tvPhone = (TextView) dialog.findViewById(R.id.tv_phone);
+					
+					if(placePhone.equals("")){
+						tvPhone.setText("-");
+					} else {
+						tvPhone.setText(placePhone);
+					}
+					
+					phone.setTypeface(bariol);
+					tvPhoneLbl.setTypeface(bariol);
+					tvPhone.setTypeface(bariol);
+				} else {
+					dialog.setContentView(R.layout.dialog_info_location);
 				}
-
-				getDirections.setOnClickListener(new OnClickListener() {
-
+				
+				Button direction = (Button) dialog.findViewById(R.id.btn_get_direction);
+				Button close = (Button) dialog.findViewById(R.id.btn_close);
+				TextView tvNameLbl = (TextView) dialog.findViewById(R.id.tv_name_lbl);
+				TextView tvAddressLbl = (TextView) dialog.findViewById(R.id.tv_address_lbl);
+				TextView tvDistanceLbl = (TextView) dialog.findViewById(R.id.tv_distance_lbl);
+				TextView tvName = (TextView) dialog.findViewById(R.id.tv_name);
+				TextView tvAddress = (TextView) dialog.findViewById(R.id.tv_address);
+				TextView tvDistance = (TextView) dialog.findViewById(R.id.tv_distance);
+				
+				tvNameLbl.setTypeface(bariol);
+				tvAddressLbl.setTypeface(bariol);
+				tvDistanceLbl.setTypeface(bariol);
+				tvName.setTypeface(bariol);
+				tvAddress.setTypeface(bariol);
+				tvDistance.setTypeface(bariol);
+				direction.setTypeface(bariol);
+				close.setTypeface(bariol);
+				
+				tvName.setText(placeName);
+				tvAddress.setText(placeAddress);
+				tvDistance.setText(distance);
+				
+				direction.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						Network ic = new Network();
-						if (ic.isNetworkConnected(getApplicationContext())) {
-							try {
-								String url = getDirectionsUrl(origin,
-										new LatLng(placeLat, placeLong));
-								DownloadTask downloadTask = new DownloadTask();
-								downloadTask.execute(url);
-								dialog.dismiss();
-							} catch (Exception e) {
-								Toast.makeText(getApplicationContext(),
-										"No Internet Connection",
-										Toast.LENGTH_LONG).show();
-							}
-						} else {
-							Toast.makeText(getApplicationContext(),
-									"No Internet Connection", Toast.LENGTH_LONG)
-									.show();
-						}
+						gMap.addPolyline(lineOptions);
+						dialog.dismiss();
 						
 					}
-
-					
 				});
+				
+				/*
+				phone.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if(placePhone!="-") CallConfirmationDialog()();
+	            		else Toast.makeText(MapsActivity.this, "Repair Shop Doesn't " +
+	            			"have telephone number", Toast.LENGTH_SHORT).show();
+					}
+				});
+				*/
+				
 				close.setOnClickListener(new OnClickListener() {
-
 					@Override
 					public void onClick(View v) {
 						dialog.dismiss();
@@ -184,8 +213,7 @@ public class MapsActivity extends FragmentActivity implements
 	}
 
 	private void setUpMap() {
-		// Do a null check to confirm that we have not already instantiated the
-		// map.
+		// Do a null check to confirm that we have not already instantiated the map.
 		if (gMap == null) {
 			// Try to obtain the map from the SupportMapFragment.
 			gMap = ((SupportMapFragment) getSupportFragmentManager()
@@ -194,7 +222,7 @@ public class MapsActivity extends FragmentActivity implements
 			if (gMap != null) {
 				gMap.addMarker(new MarkerOptions().position(
 						new LatLng(placeLat, placeLong)).title(placeName));
-				gMap.setMyLocationEnabled(true);
+				gMap.setMyLocationEnabled(false);
 				gMap.getUiSettings().setRotateGesturesEnabled(false);
 				CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
 						new LatLng(placeLat, placeLong), 12);
@@ -211,9 +239,6 @@ public class MapsActivity extends FragmentActivity implements
 		LatLng latLng = new LatLng(currentLatitude, currentLongitude);
 		origin = latLng;
 
-		// mMap.addMarker(new MarkerOptions().position(new
-		// LatLng(currentLatitude,
-		// currentLongitude)).title("Current Location"));
 		MarkerOptions options = new MarkerOptions().position(latLng).title(
 				"Your Position");
 		gMap.addMarker(options);
@@ -228,6 +253,20 @@ public class MapsActivity extends FragmentActivity implements
 					mGoogleApiClient, mLocationRequest, this);
 		} else {
 			handleNewLocation(location);
+			if (network.isNetworkConnected(getApplicationContext())) {
+				try {
+					String url = network.getDirectionsUrl(origin,
+							new LatLng(placeLat, placeLong));
+					DownloadTask downloadTask = new DownloadTask();
+					downloadTask.execute(url);
+				} catch (Exception e) {
+					Log.e("error:", e.toString());
+				}
+			} else {
+				Toast.makeText(getApplicationContext(),
+						"No Internet Connection", Toast.LENGTH_LONG)
+						.show();
+			}
 		}
 	}
 
@@ -267,67 +306,9 @@ public class MapsActivity extends FragmentActivity implements
 	}
 
 	@Override
-	public void onLocationChanged(Location location) {
-		// handleNewLocation(location);
-	}
+	public void onLocationChanged(Location location) {}
 
-	private String getDirectionsUrl(LatLng origin, LatLng dest) {
-
-		String str_origin = "origin=" + origin.latitude + ","
-				+ origin.longitude;
-		String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
-		String sensor = "sensor=false";
-		String mode = "mode=walking";
-
-		String parameters = str_origin + "&" + str_dest + "&" + sensor + "&"
-				+ mode;
-		String output = "json";
-
-		// Building the url to the web service
-		String url = "https://maps.googleapis.com/maps/api/directions/"
-				+ output + "?" + parameters;
-		return url;
-	}
-
-	/** A method to download json data from url */
-	private String downloadUrl(String strUrl) throws IOException {
-		String data = "";
-		InputStream iStream = null;
-		HttpURLConnection urlConnection = null;
-		try {
-			URL url = new URL(strUrl);
-
-			// Creating an http connection to communicate with url
-			urlConnection = (HttpURLConnection) url.openConnection();
-
-			// Connecting to url
-			urlConnection.connect();
-
-			// Reading data from url
-			iStream = urlConnection.getInputStream();
-
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					iStream));
-
-			StringBuffer sb = new StringBuffer();
-
-			String line = "";
-			while ((line = br.readLine()) != null) {
-				sb.append(line);
-			}
-
-			data = sb.toString();
-
-			br.close();
-
-		} catch (Exception e) {
-			Log.d("Exception while downloading url", e.toString());
-		} finally {
-			iStream.close();
-			urlConnection.disconnect();
-		}
-		return data;
-	}
+	
 
 	private class DownloadTask extends AsyncTask<String, Void, String> {
 
@@ -336,7 +317,7 @@ public class MapsActivity extends FragmentActivity implements
 		protected String doInBackground(String... url) {
 			String data = "";
 			try {
-				data = downloadUrl(url[0]);
+				data = network.downloadUrl(url[0]);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -373,11 +354,9 @@ public class MapsActivity extends FragmentActivity implements
 
 		@Override
 		protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-			ArrayList<LatLng> points = null;
-			PolylineOptions lineOptions = null;
-			String distance = "";
-			String duration = "";
-
+			points = null;
+			lineOptions = null;
+			
 			// Traversing through all the routes
 			for (int i = 0; i < result.size(); i++) {
 				points = new ArrayList<LatLng>();
@@ -389,7 +368,7 @@ public class MapsActivity extends FragmentActivity implements
 				// Fetching all the points in i-th route
 				for (int j = 0; j < path.size(); j++) {
 					HashMap<String, String> point = path.get(j);
-
+					
 					if (j == 0) { // Get distance from the list
 						distance = (String) point.get("distance");
 						continue;
@@ -397,7 +376,7 @@ public class MapsActivity extends FragmentActivity implements
 						duration = (String) point.get("duration");
 						continue;
 					}
-
+					
 					double lat = Double.parseDouble(point.get("lat"));
 					double lng = Double.parseDouble(point.get("lng"));
 					LatLng position = new LatLng(lat, lng);
@@ -412,10 +391,40 @@ public class MapsActivity extends FragmentActivity implements
 			}
 
 			// Drawing polyline in the Google Map for the i-th route
-			gMap.addPolyline(lineOptions);
+			//gMap.addPolyline(lineOptions);
 
 		}
-
+	}
+	
+	private void CallConfirmationDialog(){
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(MapsActivity.this);
+		 
+        alertDialog.setTitle("Confirm Phone...");
+        alertDialog.setMessage("Are you sure you want to call this hospital ?");
+ 
+        alertDialog.setPositiveButton("NO", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+            	dialog.cancel();
+            }
+        });
+ 
+        alertDialog.setNegativeButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+            	call(placePhone);
+            }
+        });
+ 
+        alertDialog.show();
+	}
+	
+	private void call(String number) {
+		try {
+			Intent callIntent = new Intent(Intent.ACTION_CALL);
+			callIntent.setData(Uri.parse("tel:"+number));
+			startActivity(callIntent);
+		} catch (Exception e) {
+			Toast.makeText(MapsActivity.this, "Can not make a phone call", Toast.LENGTH_LONG).show();
+		}
 	}
 
 }

@@ -17,6 +17,6 @@
         android:id="@+id/action_add_location"
         android:showAsAction="always"
         android:title="Add Location"
-        android:icon="@drawable/icbutton_add"/>
+        android:icon="@drawable/icbutton_add_3"/>
 
 </menu>

@@ -18,7 +18,7 @@
     </style>
 	
     <style name="MyActionButtonOverflow" parent="android:style/Widget.Holo.Light.ActionButton.Overflow">
-	    <item name="android:src">@drawable/opt</item>
+	    <item name="android:src">@drawable/opt3</item>
 	    <item name="android:background">?android:attr/actionBarItemBackground</item>
 	    <item name="android:contentDescription">"Option"</item>
 	</style>

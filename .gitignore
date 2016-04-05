@@ -62,5 +62,7 @@ local.properties
 project.properties
 .jar
 *.ap_
+*.txt
+*.cache
 classes.dex
 dexedLibs/

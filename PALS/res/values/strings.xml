@@ -5,6 +5,10 @@
     <string name="hello_world">Hello world!</string>
     <string name="locationTxt">Continuous Location Update</string>
     <string name="action_settings">Settings</string>
+    <string name="nametab">Name:\t\t\t</string>
+    <string name="addresstab">Address:\t\t</string>
+    <string name="phonetab">Telephone:\t</string>
+    <string name="distancetab">Distance:\t\t</string>
     <string name="versionName">1.0.0</string>
 	
     <string-array name="bank_name">

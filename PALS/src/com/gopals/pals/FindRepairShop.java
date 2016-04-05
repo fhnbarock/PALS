@@ -26,49 +26,57 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class FindATM extends Activity implements
+public class FindRepairShop extends Activity implements
 		LocationListener,
 		GoogleApiClient.ConnectionCallbacks,
-		GoogleApiClient.OnConnectionFailedListener {
-	
+		GoogleApiClient.OnConnectionFailedListener,
+		AdapterView.OnItemSelectedListener {
 	private static final String TAG = "LocationActivity";
     private static final long INTERVAL = 1000 * 3;
     private static final long FASTEST_INTERVAL = 1000 * 1;
     
     private ProgressDialog pDialog;
-    private static final String GET_ATM = 
-			"http://gopals.netau.net/get_atm.php";
+    private static final String GET_BENGKEL = 
+			"http://gopals.netau.net/get_bengkel.php";
     public static final String TAG_SUCCESS = "success";
 	public static final String TAG_MESSAGE = "message";
-	public static final String TAG_ATM = "atm";
-	public static final String TAG_ID = "id_atm";
-    public static final String TAG_NAME = "atm_name";
-    public static final String TAG_ADDRESS = "atm_address";
+	public static final String TAG_REPAIR_SHOP = "bengkel";
+	public static final String TAG_ID = "id_bengkel";
+    public static final String TAG_NAME = "bengkel_name";
+    public static final String TAG_ADDRESS = "bengkel_address";
+    public static final String TAG_PHONE = "telephone";
     public static final String TAG_LATITUDE = "latitude";
     public static final String TAG_LONGITUDE = "longitude";
     
-    private JSONArray atmJSON = null;
-    private ArrayList<String> atmNameList, atmAddressList, atmLatList, 
-    				atmLongList; 
-    private ArrayList<Double> atmRadiusList;
+    private JSONArray bengkelJSON = null;
+    private ArrayList<String> bengkelNameList, bengkelAddressList, bengkelPhoneList,
+    		bengkelLatList,	bengkelLongList; 
+    private ArrayList<Double> bengkelRadiusList;
     private ArrayList<Location> locationList;
-    String bankName, radiusStr;
+    String vehicleType, brand, radiusStr;
     Location currentLocation;
     
 	LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     
+    Spinner SpinnerVehicle, SpinnerBrand, SpinnerRadius;
+    
+    String[] vehicleTypeSpr, radiusSpr;
     String[] radiusAmount=null;
-		
+    HashMap<String, String []> hash_brand = new HashMap<String, String []>();
+    	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.find_atm);
+		generateBrand();
+        
+		setContentView(R.layout.find_repair_shop);
 		
 		if (android.os.Build.VERSION.SDK_INT > 9) {
         	StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -87,51 +95,56 @@ public class FindATM extends Activity implements
 	        .addOnConnectionFailedListener(this)
 	        .build();
         
-        String[] bankNameSpr=null;
-        String[] radiusSpr=null;
+        vehicleTypeSpr= new String[] { "Select Vehicle Type", "Car", "Motorcycle" };
+        radiusSpr=null;
         
-        bankNameSpr = getResources().getStringArray(R.array.bank_name);
         radiusSpr = getResources().getStringArray(R.array.radius_display);
         radiusAmount = getResources().getStringArray(R.array.radius);
-        MySpinnerAdapter adapterBank = new MySpinnerAdapter(
-        		this, android.R.layout.simple_spinner_dropdown_item, bankNameSpr);
+        
+        MySpinnerAdapter adapterVehicle = new MySpinnerAdapter(
+        		this, android.R.layout.simple_spinner_dropdown_item, vehicleTypeSpr);
         MySpinnerAdapter adapterRadius = new MySpinnerAdapter(
         		this, android.R.layout.simple_spinner_dropdown_item, radiusSpr);
         
-        final Spinner SpinnerBank = (Spinner) findViewById(R.id.spr_bank);
-        final Spinner SpinnerRadius = (Spinner) findViewById(R.id.spr_radius);
-        SpinnerBank.setAdapter(adapterBank);
+        SpinnerVehicle = (Spinner) findViewById(R.id.spr_vehicle);
+        SpinnerBrand = (Spinner) findViewById(R.id.spr_brand);
+        SpinnerRadius = (Spinner) findViewById(R.id.spr_radius);
+        SpinnerVehicle.setAdapter(adapterVehicle);
         SpinnerRadius.setAdapter(adapterRadius);
         
-        TextView atmLbl = (TextView)findViewById(R.id.atmLbl);
-        Button findButton = (Button)findViewById(R.id.atmFindButton);
-        atmLbl.setTypeface(bariol, Typeface.BOLD);
+        SpinnerVehicle.setOnItemSelectedListener(this);
+        
+        TextView repairShopLbl = (TextView)findViewById(R.id.repairShopLbl);
+        Button findButton = (Button)findViewById(R.id.repairShopFindButton);
+        repairShopLbl.setTypeface(bariol, Typeface.BOLD);
         findButton.setTypeface(bariol);
         
         findButton.setOnClickListener(new OnClickListener() {
-        	@Override
+			@Override
 			public void onClick(View v) {
-				bankName = (String) SpinnerBank.getSelectedItem();
+				vehicleType = (String) SpinnerVehicle.getSelectedItem();
+				brand = (String) SpinnerBrand.getSelectedItem();
 				radiusStr = radiusAmount[SpinnerRadius.getSelectedItemPosition()];
 				Network ic = new Network();
 				if (ic.isNetworkConnected(getApplicationContext())) {
-					if(bankName.equals("Select Bank") || radiusStr.equals("Select Radius")){
-						Toast.makeText(FindATM.this, "Please Select Bank and Radius", 
+					if(vehicleType.equals("Select Vehicle Type") || brand.equals("Select Brand") ||
+							radiusStr.equals("Select Radius")){
+						Toast.makeText(FindRepairShop.this, "Please Select Vehicle Type, Brand and Radius", 
 								Toast.LENGTH_SHORT).show();
 					} else {
 						if (currentLocation!=null){
-							new GetATM().execute();
+							new GetRepairShop().execute();
 						}else{
 							Toast.makeText(getApplicationContext(), "Cannot Detect Your Location, " +
 									"Please Wait and Try Again", Toast.LENGTH_SHORT).show();
 						}
-					}
+					} 
 				} else 	Toast.makeText(getApplicationContext(), "No Internet Connection", 
 						Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
-	
+
 	@Override
     public void onStart() {
         super.onStart();
@@ -192,12 +205,39 @@ public class FindATM extends Activity implements
 	    LocationServices.FusedLocationApi.requestLocationUpdates(
 	            mGoogleApiClient, mLocationRequest, this);
 	}
+
+	public void onItemSelected(AdapterView<?> parent, View v, int position, long id){
+		fillSpinnerBrand(vehicleTypeSpr[position]);
+	}
 	
-	public class GetATM extends AsyncTask<Void, Void, Boolean> {
+	public void onNothingSelected(AdapterView<?> parent){}
+	
+	private void generateBrand(){ 
+		hash_brand.put("Select Vehicle Type", new String[] {"Select Brand"});
+		hash_brand.put("Car", new String[] {"Select Brand", "Toyota", "Honda", 
+				"Daihatsu", "Suzuki"});
+		hash_brand.put("Motorcycle", new String[] {"Select Brand", "Honda", "Yamaha", 
+				"Suzuki", "Kawasaki"});
+	}
+	
+	private void fillSpinnerBrand(String vehicle){
+		String[] brandSpr=null;
+        MySpinnerAdapter adapterBrand = null;
+		try {
+			brandSpr = hash_brand.get(vehicle);
+			adapterBrand = new MySpinnerAdapter(this, android.R.layout.simple_spinner_dropdown_item, 
+					brandSpr);
+		} catch (NullPointerException e){
+			Log.d("error", e.toString());
+		}
+		SpinnerBrand.setAdapter(adapterBrand);
+	}
+
+	public class GetRepairShop extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			pDialog = new ProgressDialog(FindATM.this);
+			pDialog = new ProgressDialog(FindRepairShop.this);
 			pDialog.setMessage("Loading...");
 			pDialog.setIndeterminate(false);
 			pDialog.setCancelable(true);
@@ -206,62 +246,68 @@ public class FindATM extends Activity implements
 		
 		@Override
 		protected Boolean doInBackground(Void... arg0) {
-			atmNameList = new ArrayList<String>();
-			atmAddressList = new ArrayList<String>();
-			atmLatList = new ArrayList<String>();
-			atmLongList = new ArrayList<String>();
+			bengkelNameList = new ArrayList<String>();
+			bengkelAddressList = new ArrayList<String>();
+			bengkelPhoneList = new ArrayList<String>();
+			bengkelLatList = new ArrayList<String>();
+			bengkelLongList = new ArrayList<String>();
 			locationList = new ArrayList<Location>();
-			atmRadiusList = new ArrayList<Double>();
+			bengkelRadiusList = new ArrayList<Double>();
 			Double rad;
 			HashMap<String, String> params = new HashMap<String, String>();
-            params.put("bank_name", bankName);
+            params.put("vehicle_type", vehicleType);
+            params.put("brand", brand);
 			JSONParser jParser = new JSONParser();
-			JSONObject json = jParser.makeHttpRequest(GET_ATM, params);
+			JSONObject json = jParser.makeHttpRequest(GET_BENGKEL, params);
 	        Log.d("All Data: ", json.toString());
 			try {
 				CalculateRadius cr = new CalculateRadius();
 				int success = json.getInt(TAG_SUCCESS);
 				if (success == 1) {
-					atmJSON = json.getJSONArray(TAG_ATM);
+					bengkelJSON = json.getJSONArray(TAG_REPAIR_SHOP);
 					if(radiusStr.equals("Display All")){
-						for (int i = 0; i < atmJSON.length(); i++) {
-							JSONObject c = atmJSON.getJSONObject(i);
-							String spbuName = c.getString(TAG_NAME);
-							String spbuAddress = c.getString(TAG_ADDRESS);
-							Double spbuLatitude = c.getDouble(TAG_LATITUDE);
-							Double spbuLongitude = c.getDouble(TAG_LONGITUDE);
-							Location spbuLocation = new Location("spbu location");
-							spbuLocation.setLatitude(spbuLatitude);
-							spbuLocation.setLongitude(spbuLongitude);
-							rad = cr.calculateRadius(currentLocation, spbuLocation);
+						for (int i = 0; i < bengkelJSON.length(); i++) {
+							JSONObject c = bengkelJSON.getJSONObject(i);
+							String bengkelName = c.getString(TAG_NAME);
+							String bengkelAddress = c.getString(TAG_ADDRESS);
+							String bengkelPhone = c.getString(TAG_PHONE);
+							Double bengkelLatitude = c.getDouble(TAG_LATITUDE);
+							Double bengkelLongitude = c.getDouble(TAG_LONGITUDE);
+							Location bengkelLocation = new Location("bengkel location");
+							bengkelLocation.setLatitude(bengkelLatitude);
+							bengkelLocation.setLongitude(bengkelLongitude);
+							rad = cr.calculateRadius(currentLocation, bengkelLocation);
 							
-						    atmNameList.add(spbuName);
-						    atmAddressList.add(spbuAddress);
-						    atmLatList.add(String.valueOf(spbuLatitude));
-						    atmLongList.add(String.valueOf(spbuLongitude));   
-						    locationList.add(spbuLocation); 
-						    atmRadiusList.add(rad);
+						    bengkelNameList.add(bengkelName);
+						    bengkelAddressList.add(bengkelAddress);
+						    bengkelPhoneList.add(bengkelPhone);
+						    bengkelLatList.add(String.valueOf(bengkelLatitude));
+						    bengkelLongList.add(String.valueOf(bengkelLongitude));   
+						    locationList.add(bengkelLocation); 
+						    bengkelRadiusList.add(rad);
 						}
 					} else {
 						double radius = Double.valueOf(radiusStr);
-						for (int i = 0; i < atmJSON.length(); i++) {
-							JSONObject c = atmJSON.getJSONObject(i);
-							String atmName = c.getString(TAG_NAME);
-							String atmAddress = c.getString(TAG_ADDRESS);
-							Double atmLatitude = c.getDouble(TAG_LATITUDE);
-							Double atmLongitude = c.getDouble(TAG_LONGITUDE);
-							Location atmLocation = new Location("spbu location");
-							atmLocation.setLatitude(atmLatitude);
-							atmLocation.setLongitude(atmLongitude);
-							rad = cr.calculateRadius(currentLocation, atmLocation);
+						for (int i = 0; i < bengkelJSON.length(); i++) {
+							JSONObject c = bengkelJSON.getJSONObject(i);
+							String bengkelName = c.getString(TAG_NAME);
+							String bengkelAddress = c.getString(TAG_ADDRESS);
+							String bengkelPhone = c.getString(TAG_PHONE);
+							Double bengkelLatitude = c.getDouble(TAG_LATITUDE);
+							Double bengkelLongitude = c.getDouble(TAG_LONGITUDE);
+							Location bengkelLocation = new Location("bengkel location");
+							bengkelLocation.setLatitude(bengkelLatitude);
+							bengkelLocation.setLongitude(bengkelLongitude);
+							rad = cr.calculateRadius(currentLocation, bengkelLocation);
 							
 							if(rad<radius){
-								atmNameList.add(atmName);
-							    atmAddressList.add(atmAddress);
-							    atmLatList.add(String.valueOf(atmLatitude));
-							    atmLongList.add(String.valueOf(atmLongitude));   
-							    locationList.add(atmLocation); 
-							    atmRadiusList.add(rad);
+								bengkelNameList.add(bengkelName);
+							    bengkelAddressList.add(bengkelAddress);
+							    bengkelPhoneList.add(bengkelPhone);
+							    bengkelLatList.add(String.valueOf(bengkelLatitude));
+							    bengkelLongList.add(String.valueOf(bengkelLongitude));   
+							    locationList.add(bengkelLocation); 
+							    bengkelRadiusList.add(rad);
 							}
 						}
 					}
@@ -276,19 +322,22 @@ public class FindATM extends Activity implements
 		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
 			
-			String[] arrayName = new String[atmNameList.size()];
-			String[] arrayAddress = new String[atmAddressList.size()];
-			String[] arrayLat = new String[atmLatList.size()];
-			String[] arrayLong = new String[atmLongList.size()];
-			Double[] arrayRadius = new Double[atmRadiusList.size()];
+			String[] arrayName = new String[bengkelNameList.size()];
+			String[] arrayAddress = new String[bengkelAddressList.size()];
+			String[] arrayPhone = new String[bengkelPhoneList.size()];
+			String[] arrayLat = new String[bengkelLatList.size()];
+			String[] arrayLong = new String[bengkelLongList.size()];
+			Double[] arrayRadius = new Double[bengkelRadiusList.size()];
 						
-			arrayName = atmNameList.toArray(arrayName);
-			arrayAddress = atmAddressList.toArray(arrayAddress);
-			arrayLat = atmLatList.toArray(arrayLat);
-			arrayLong = atmLongList.toArray(arrayLong);
-			arrayRadius = atmRadiusList.toArray(arrayRadius);
+			arrayName = bengkelNameList.toArray(arrayName);
+			arrayAddress = bengkelAddressList.toArray(arrayAddress);
+			arrayPhone = bengkelPhoneList.toArray(arrayPhone);
+			arrayLat = bengkelLatList.toArray(arrayLat);
+			arrayLong = bengkelLongList.toArray(arrayLong);
+			arrayRadius = bengkelRadiusList.toArray(arrayRadius);
 			String[] sortedName = new String[arrayName.length];
 			String[] sortedAddress = new String[arrayAddress.length];
+			String[] sortedPhone = new String[arrayPhone.length];
 			String[] sortedLat = new String[arrayLat.length];
 			String[] sortedLong = new String[arrayLong.length];
 			String[] sortedRadius = new String[arrayLong.length];
@@ -308,6 +357,7 @@ public class FindATM extends Activity implements
 				for(int i=0; i<idx.length; i++){
 					sortedName[i] = arrayName[idx[i]];
 					sortedAddress[i] = arrayAddress[idx[i]];
+					sortedPhone[i] = arrayPhone[idx[i]];
 					sortedLat[i] = arrayLat[idx[i]];
 					sortedLong[i] = arrayLong[idx[i]];
 					sortedRadius[i] = doubleRadius[i].toString();
@@ -316,18 +366,19 @@ public class FindATM extends Activity implements
 			
 			pDialog.dismiss();
 			
-			Intent listResult = new Intent(FindATM.this, ListResultActivity.class);
+			Intent listResult = new Intent(FindRepairShop.this, ListResultActivity.class);
 			if(arrayName.length>0){
-				listResult.putExtra("category", "atm");
-				listResult.putExtra("atm_name", sortedName);
-				listResult.putExtra("atm_address", sortedAddress);
-				listResult.putExtra("bank_name", bankName);
-				listResult.putExtra("atm_lat", sortedLat);
-				listResult.putExtra("atm_long", sortedLong);
-				listResult.putExtra("atm_radius", sortedRadius);
+				listResult.putExtra("category", "repair_shop");
+				listResult.putExtra("bengkel_name", sortedName);
+				listResult.putExtra("bengkel_address", sortedAddress);
+				listResult.putExtra("bengkel_phone", sortedPhone);
+				listResult.putExtra("vehicle_type", vehicleType);
+				listResult.putExtra("brand", brand);
+				listResult.putExtra("bengkel_lat", sortedLat);
+				listResult.putExtra("bengkel_long", sortedLong);
+				listResult.putExtra("bengkel_radius", sortedRadius);
 			}
 			startActivity(listResult);
 		}
 	}
-	
 }

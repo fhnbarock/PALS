@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    
+    <uses-permission android:name="android.permission.CALL_PHONE" />    
     
     <application
         android:allowBackup="true"
@@ -38,6 +38,11 @@
         </activity>
         <activity
             android:name=".FindGasStation"
+            android:logo="@drawable/icon"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".FindRepairShop"
             android:logo="@drawable/icon"
             android:screenOrientation="portrait" >
         </activity>

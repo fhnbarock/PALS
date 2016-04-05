@@ -24,6 +24,7 @@ public class Network {
 		if (!ni.isAvailable()) return false;
 		return true;
 	}
+	
 	public String getDirectionsUrl(LatLng origin,LatLng dest){
 	    String str_origin = "origin="+origin.latitude+","+origin.longitude;
 	    String str_dest = "destination="+dest.latitude+","+dest.longitude;

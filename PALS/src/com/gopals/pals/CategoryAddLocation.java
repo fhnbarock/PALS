@@ -3,6 +3,7 @@ package com.gopals.pals;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
+@SuppressLint("InflateParams")
 public class CategoryAddLocation extends ListActivity{
 	
 	public static final String TAG_CATEGORY = "category";

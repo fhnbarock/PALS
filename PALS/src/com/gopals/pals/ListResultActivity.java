@@ -3,6 +3,7 @@ package com.gopals.pals;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -20,18 +21,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
+@SuppressLint("InflateParams")
 public class ListResultActivity extends ListActivity{
 	
 	public static final String TAG_NAME = "placeName";
     public static final String TAG_ADDRESS = "placeAddress";
+    public static final String TAG_PHONE = "placePhone";
     public static final String TAG_LAT = "placeLat";
     public static final String TAG_LONG = "placeLong";
-    public static final String TAG_DISTANCE = "placeDistance";
+    public static final String TAG_RADIUS = "placeRadius";
     ArrayList<HashMap<String, String>> placeList; 
-    String[] arrPlaceName, arrPlaceAddress, arrPlaceLat, arrPlaceLong, arrPlaceRadius;
-    String company, bankName;
-    String placeName, placeAddress, placeLat, placeLong, placeRadius;
+    String[] arrPlaceName, arrPlaceAddress, arrPlacePhone, arrPlaceLat, arrPlaceLong, arrPlaceRadius;
+    String company, bankName, vehicleType, brand;
+    String placeName, placeAddress, placePhone, placeLat, placeLong, placeRadius;
 	private String category;
+	
+	ListView lv;
+	Typeface bariol;
+	
+	String[] from;
+	int[] to;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,17 +48,16 @@ public class ListResultActivity extends ListActivity{
 		setContentView(R.layout.activity_list_result);
 		RelativeLayout noData = (RelativeLayout)findViewById(R.id.no_data_layout);
 		
-		ListView lv = getListView();
+		lv = getListView();
 		
-		final Typeface bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");
+		bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");
 		TextView resultLbl = (TextView)findViewById(R.id.resultLbl);
 		TextView noDataLbl = (TextView)findViewById(R.id.label_no_data);
 		resultLbl.setTypeface(bariol, Typeface.BOLD);
 		noDataLbl.setTypeface(bariol, Typeface.BOLD);
 		
 		placeList = new ArrayList<HashMap<String, String>>();
-		final String[] from = {TAG_NAME, TAG_ADDRESS, TAG_DISTANCE, TAG_LAT, TAG_LONG};
-		
+				
 		Bundle bundle = new Bundle();
 		bundle = getIntent().getExtras();
 		if(bundle==null){
@@ -64,6 +72,7 @@ public class ListResultActivity extends ListActivity{
 				arrPlaceLat = bundle.getStringArray("atm_lat");
 				arrPlaceLong = bundle.getStringArray("atm_long");
 				arrPlaceRadius = bundle.getStringArray("atm_radius");
+				setAdapterATMGasStation();
 			} else if (bundle.getString("category").equals("gas_station")){
 				category = bundle.getString("category");
 				arrPlaceName = bundle.getStringArray("spbu_name");
@@ -72,55 +81,19 @@ public class ListResultActivity extends ListActivity{
 				arrPlaceLat = bundle.getStringArray("spbu_lat");
 				arrPlaceLong = bundle.getStringArray("spbu_long");
 				arrPlaceRadius = bundle.getStringArray("spbu_radius");
+				setAdapterATMGasStation();
+			} else if (bundle.getString("category").equals("repair_shop")){
+				category = bundle.getString("category");
+				arrPlaceName = bundle.getStringArray("bengkel_name");
+				vehicleType = bundle.getString("vehicle_type");
+				brand = bundle.getString("brand");
+				arrPlaceAddress = bundle.getStringArray("bengkel_address");
+				arrPlacePhone = bundle.getStringArray("bengkel_phone");
+				arrPlaceLat = bundle.getStringArray("bengkel_lat");
+				arrPlaceLong = bundle.getStringArray("bengkel_long");
+				arrPlaceRadius = bundle.getStringArray("bengkel_radius");
+				setAdapterRepairShop();
 			}
-			
-			final int[] to = {R.id.placeName, R.id.placeAddress, R.id.placeRadius, R.id.placeLat, R.id.placeLong};
-			
-			int x = 0;
-			for(int j=0; j<arrPlaceName.length; j++){
-				HashMap<String, String> map = new HashMap<String, String>();
-				map.put(from[x], arrPlaceName[j]);
-				map.put(from[x+1], arrPlaceAddress[j]);
-				map.put(from[x+2], arrPlaceRadius[j] + " km");
-				map.put(from[x+3], arrPlaceLat[j]);
-				map.put(from[x+4], arrPlaceLong[j]);
-				placeList.add(map);
-			}
-			
-			if(placeList.size()>0){	
-				runOnUiThread(new Runnable() {
-		            public void run() {
-		            	ListAdapter adapter = new SimpleAdapter(getApplicationContext(), placeList,
-		        				R.layout.list_item, from, to){
-		            		
-							@Override
-		                    public View getView(int position, View convertView, ViewGroup parent){
-								if(convertView== null){
-					                LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					                convertView=vi.inflate(R.layout.list_item, null);
-					            }
-		                        TextView nameLbl = (TextView)convertView.findViewById(R.id.placeName);
-				        		TextView addressLbl = (TextView)convertView.findViewById(R.id.placeAddress);
-				        		TextView latLbl = (TextView)convertView.findViewById(R.id.placeLat);
-				        		TextView longLbl = (TextView)convertView.findViewById(R.id.placeLong);
-				        		TextView distanceLbl = (TextView)convertView.findViewById(R.id.placeRadius);
-				        		
-				        		nameLbl.setText(placeList.get(position).get(TAG_NAME));
-				        		addressLbl.setText(placeList.get(position).get(TAG_ADDRESS));
-				        		latLbl.setText(placeList.get(position).get(TAG_LAT));
-				        		longLbl.setText(placeList.get(position).get(TAG_LONG));
-				        		distanceLbl.setText(placeList.get(position).get(TAG_DISTANCE));
-				        		
-				        		nameLbl.setTypeface(bariol, Typeface.BOLD);
-				        		addressLbl.setTypeface(bariol);
-				        		distanceLbl.setTypeface(bariol);
-		                        return convertView;
-		                    }
-		            	};
-		            	setListAdapter(adapter);
-		            }
-				});
-			} 
 		}	
 		
 		lv.setOnItemClickListener(new OnItemClickListener() {
@@ -131,16 +104,18 @@ public class ListResultActivity extends ListActivity{
 				if (ic.isNetworkConnected(getApplicationContext())) {
 					placeName = ((TextView) view.findViewById(R.id.placeName)).getText().toString();
 					placeAddress = ((TextView) view.findViewById(R.id.placeAddress)).getText().toString();
+					placePhone = ((TextView) view.findViewById(R.id.placePhone)).getText().toString();
 					placeLat = ((TextView) view.findViewById(R.id.placeLat)).getText().toString();
 					placeLong = ((TextView) view.findViewById(R.id.placeLong)).getText().toString();
 					placeRadius = ((TextView)view.findViewById(R.id.placeRadius)).getText().toString();
 					
 					Intent mapsActivity = new Intent(getApplicationContext(), MapsActivity.class);
+					if(category.equals("repair_shop")) mapsActivity.putExtra("place_phone", placePhone);
 					mapsActivity.putExtra("place_name", placeName);
 					mapsActivity.putExtra("place_address", placeAddress);
 					mapsActivity.putExtra("place_lat", placeLat);
 					mapsActivity.putExtra("place_long", placeLong);
-					mapsActivity.putExtra("place_distance", placeRadius);
+					mapsActivity.putExtra("place_radius", placeRadius);
 					mapsActivity.putExtra("category", category);
 					startActivity(mapsActivity);
 					
@@ -151,6 +126,110 @@ public class ListResultActivity extends ListActivity{
 		
 	}
 	
+	private void setAdapterATMGasStation(){
+		from = new String[] {TAG_NAME, TAG_ADDRESS, TAG_RADIUS, TAG_LAT, TAG_LONG};
+		to = new int[]{R.id.placeName, R.id.placeAddress, R.id.placeRadius, R.id.placeLat, R.id.placeLong};
+		
+		int x = 0;
+		for(int j=0; j<arrPlaceName.length; j++){
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put(from[x], arrPlaceName[j]);
+			map.put(from[x+1], arrPlaceAddress[j]);
+			map.put(from[x+2], arrPlaceRadius[j] + " km");
+			map.put(from[x+3], arrPlaceLat[j]);
+			map.put(from[x+4], arrPlaceLong[j]);
+			placeList.add(map);
+		}
+		
+		if(placeList.size()>0){	
+			runOnUiThread(new Runnable() {
+	            public void run() {
+	            	ListAdapter adapter = new SimpleAdapter(getApplicationContext(), placeList,
+	        				R.layout.list_item, from, to){
+	            		
+						@Override
+	                    public View getView(int position, View convertView, ViewGroup parent){
+							if(convertView== null){
+				                LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				                convertView=vi.inflate(R.layout.list_item, null);
+				            }
+	                        TextView nameLbl = (TextView)convertView.findViewById(R.id.placeName);
+			        		TextView addressLbl = (TextView)convertView.findViewById(R.id.placeAddress);
+			        		TextView latLbl = (TextView)convertView.findViewById(R.id.placeLat);
+			        		TextView longLbl = (TextView)convertView.findViewById(R.id.placeLong);
+			        		TextView radiusLbl = (TextView)convertView.findViewById(R.id.placeRadius);
+			        		
+			        		nameLbl.setText(placeList.get(position).get(TAG_NAME));
+			        		addressLbl.setText(placeList.get(position).get(TAG_ADDRESS));
+			        		latLbl.setText(placeList.get(position).get(TAG_LAT));
+			        		longLbl.setText(placeList.get(position).get(TAG_LONG));
+			        		radiusLbl.setText(placeList.get(position).get(TAG_RADIUS));
+			        		
+			        		nameLbl.setTypeface(bariol, Typeface.BOLD);
+			        		addressLbl.setTypeface(bariol);
+			        		radiusLbl.setTypeface(bariol);
+	                        return convertView;
+	                    }
+	            	};
+	            	setListAdapter(adapter);
+	            }
+			});
+		}
+	}
 	
+	private void setAdapterRepairShop(){
+		from = new String[] {TAG_NAME, TAG_ADDRESS, TAG_RADIUS, TAG_PHONE, TAG_LAT, TAG_LONG};
+		to = new int[]{R.id.placeName, R.id.placeAddress, R.id.placeRadius, R.id.placePhone, 
+				R.id.placeLat, R.id.placeLong};
+		
+		int x = 0;
+		for(int j=0; j<arrPlaceName.length; j++){
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put(from[x], arrPlaceName[j]);
+			map.put(from[x+1], arrPlaceAddress[j]);
+			map.put(from[x+2], arrPlaceRadius[j] + " km");
+			map.put(from[x+3], arrPlacePhone[j]);
+			map.put(from[x+4], arrPlaceLat[j]);
+			map.put(from[x+5], arrPlaceLong[j]);
+			placeList.add(map);
+		}
+		
+		if(placeList.size()>0){	
+			runOnUiThread(new Runnable() {
+	            public void run() {
+	            	ListAdapter adapter = new SimpleAdapter(getApplicationContext(), placeList,
+	        				R.layout.list_item, from, to){
+	            		
+						@Override
+	                    public View getView(int position, View convertView, ViewGroup parent){
+							if(convertView== null){
+				                LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				                convertView=vi.inflate(R.layout.list_item, null);
+				            }
+	                        TextView nameLbl = (TextView)convertView.findViewById(R.id.placeName);
+			        		TextView addressLbl = (TextView)convertView.findViewById(R.id.placeAddress);
+			        		TextView phoneLbl = (TextView)convertView.findViewById(R.id.placePhone);
+			        		TextView latLbl = (TextView)convertView.findViewById(R.id.placeLat);
+			        		TextView longLbl = (TextView)convertView.findViewById(R.id.placeLong);
+			        		TextView radiusLbl = (TextView)convertView.findViewById(R.id.placeRadius);
+			        		
+			        		nameLbl.setText(placeList.get(position).get(TAG_NAME));
+			        		addressLbl.setText(placeList.get(position).get(TAG_ADDRESS));
+			        		phoneLbl.setText(placeList.get(position).get(TAG_PHONE));
+			        		latLbl.setText(placeList.get(position).get(TAG_LAT));
+			        		longLbl.setText(placeList.get(position).get(TAG_LONG));
+			        		radiusLbl.setText(placeList.get(position).get(TAG_RADIUS));
+			        		
+			        		nameLbl.setTypeface(bariol, Typeface.BOLD);
+			        		addressLbl.setTypeface(bariol);
+			        		radiusLbl.setTypeface(bariol);
+	                        return convertView;
+	                    }
+	            	};
+	            	setListAdapter(adapter);
+	            }
+			});
+		}
+	}
 	
 }

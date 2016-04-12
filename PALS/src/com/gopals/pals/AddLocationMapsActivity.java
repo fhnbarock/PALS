@@ -26,6 +26,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class AddLocationMapsActivity extends FragmentActivity implements
 		GoogleApiClient.ConnectionCallbacks,
@@ -41,6 +43,7 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 	private GoogleApiClient mGoogleApiClient;
 	private LocationRequest mLocationRequest;
 	String category;
+	double latCoordinate, longCoordinate;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +63,9 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 				.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 				.setInterval(3 * 1000) // 3 seconds, in milliseconds
 				.setFastestInterval(1 * 1000); // 1 second, in milliseconds
+		
+		final ImageButton confirm = (ImageButton) findViewById(R.id.btnConfirm);
+		
 		gMap.setOnMapClickListener(new OnMapClickListener() {
 
 			@Override
@@ -70,12 +76,20 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 				gMap.clear();
 				gMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 				gMap.addMarker(markerOptions);
+				latCoordinate = latLng.latitude;
+				longCoordinate = latLng.longitude;
+				confirm.setVisibility(View.VISIBLE);
 			}
 		});
+		
 		
 		gMap.setOnMarkerClickListener(new OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(final Marker marker) {
+				
+				gMap.clear();
+				confirm.setVisibility(View.GONE);
+				/*
 				final Dialog dialog = new Dialog(context);
     			dialog.setContentView(R.layout.dialog_add_location);
     			dialog.setTitle("Confirmation");
@@ -106,10 +120,30 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 					}
 				});
     			dialog.show();
+    			*/
 				return true;
 			}
 		});
 		
+		
+		confirm.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//Toast.makeText(getApplicationContext(), "Lat: "+ latCoordinate +"\nLong: "+longCoordinate, 
+						//Toast.LENGTH_SHORT).show();
+				Intent in = null;
+				if(category.equals("ATM")){
+					in = new Intent(AddLocationMapsActivity.this, FormATM.class);
+				} else if(category.equals("Gas Station")){
+					in = new Intent(AddLocationMapsActivity.this, FormGasStation.class);
+				} else if(category.equals("Repair Shop")){
+					in = new Intent(AddLocationMapsActivity.this, FormRepairShop.class);
+				}
+				in.putExtra("latitude", latCoordinate);
+				in.putExtra("longitude", longCoordinate);
+				startActivity(in);
+			}
+		});
 	}
 
 	@Override
@@ -136,6 +170,7 @@ public class AddLocationMapsActivity extends FragmentActivity implements
 					.findFragmentById(R.id.map_add_Location	)).getMap();
 			if (gMap != null) {
 				gMap.getUiSettings().setRotateGesturesEnabled(false);
+				gMap.getUiSettings().setZoomControlsEnabled(false);
 			}
 		}
 	}

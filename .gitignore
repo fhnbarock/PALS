@@ -46,8 +46,9 @@ Thumbs.db
 *.pydevproject
 .project
 *.metadata
-bin/R.txt
+bin/
 bin/dexedLibs/*.jar
+gen/
 tmp/**
 tmp/**/*
 *.tmp
@@ -60,7 +61,8 @@ local.properties
 .loadpath
 project.properties
 .jar
-PALS.apk
-resources.ap_
+*.ap_
+*.txt
+*.cache
 classes.dex
 dexedLibs/

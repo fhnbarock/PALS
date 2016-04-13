@@ -15,10 +15,13 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,7 +46,7 @@ public class FindRepairShop extends Activity implements
     
     private ProgressDialog pDialog;
     private static final String GET_BENGKEL = 
-			"http://gopals.netau.net/get_bengkel.php";
+			"http://gopals.esy.es/get_bengkel.php";
     public static final String TAG_SUCCESS = "success";
 	public static final String TAG_MESSAGE = "message";
 	public static final String TAG_REPAIR_SHOP = "bengkel";
@@ -82,6 +85,10 @@ public class FindRepairShop extends Activity implements
         	StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         	StrictMode.setThreadPolicy(policy);
         }
+		
+		ActionBar bar = getActionBar();
+		bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1a1a1a")));
+		bar.setTitle("");
 		
 		Typeface bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");
 		
@@ -134,7 +141,7 @@ public class FindRepairShop extends Activity implements
 					} else {
 						if (currentLocation!=null){
 							new GetRepairShop().execute();
-						}else{
+						} else {
 							Toast.makeText(getApplicationContext(), "Cannot Detect Your Location, " +
 									"Please Wait and Try Again", Toast.LENGTH_SHORT).show();
 						}
@@ -234,6 +241,8 @@ public class FindRepairShop extends Activity implements
 	}
 
 	public class GetRepairShop extends AsyncTask<Void, Void, Boolean> {
+		String error;
+		
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
@@ -312,73 +321,79 @@ public class FindRepairShop extends Activity implements
 						}
 					}
 				} 
+				return true;
 			} catch (JSONException e) {
-				 e.printStackTrace();
+				 //e.printStackTrace();
+				error = "Slow Internet Connection";
+				return false;
 			}
-			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
 			
-			String[] arrayName = new String[bengkelNameList.size()];
-			String[] arrayAddress = new String[bengkelAddressList.size()];
-			String[] arrayPhone = new String[bengkelPhoneList.size()];
-			String[] arrayLat = new String[bengkelLatList.size()];
-			String[] arrayLong = new String[bengkelLongList.size()];
-			Double[] arrayRadius = new Double[bengkelRadiusList.size()];
-						
-			arrayName = bengkelNameList.toArray(arrayName);
-			arrayAddress = bengkelAddressList.toArray(arrayAddress);
-			arrayPhone = bengkelPhoneList.toArray(arrayPhone);
-			arrayLat = bengkelLatList.toArray(arrayLat);
-			arrayLong = bengkelLongList.toArray(arrayLong);
-			arrayRadius = bengkelRadiusList.toArray(arrayRadius);
-			String[] sortedName = new String[arrayName.length];
-			String[] sortedAddress = new String[arrayAddress.length];
-			String[] sortedPhone = new String[arrayPhone.length];
-			String[] sortedLat = new String[arrayLat.length];
-			String[] sortedLong = new String[arrayLong.length];
-			String[] sortedRadius = new String[arrayLong.length];
-			Double[] doubleRadius = Arrays.copyOf(arrayRadius, arrayRadius.length);
-			int[] idx = new int[doubleRadius.length];
-			int index=0;
-			if(doubleRadius.length>0){
-				Arrays.sort(doubleRadius);
-				for(int i=0; i<doubleRadius.length; i++){
-					for(int j=0; j<arrayRadius.length; j++){
-						if(arrayRadius[j]==doubleRadius[i]){
-							idx[index] = j;
-							index++;
+			if(result){
+				String[] arrayName = new String[bengkelNameList.size()];
+				String[] arrayAddress = new String[bengkelAddressList.size()];
+				String[] arrayPhone = new String[bengkelPhoneList.size()];
+				String[] arrayLat = new String[bengkelLatList.size()];
+				String[] arrayLong = new String[bengkelLongList.size()];
+				Double[] arrayRadius = new Double[bengkelRadiusList.size()];
+							
+				arrayName = bengkelNameList.toArray(arrayName);
+				arrayAddress = bengkelAddressList.toArray(arrayAddress);
+				arrayPhone = bengkelPhoneList.toArray(arrayPhone);
+				arrayLat = bengkelLatList.toArray(arrayLat);
+				arrayLong = bengkelLongList.toArray(arrayLong);
+				arrayRadius = bengkelRadiusList.toArray(arrayRadius);
+				String[] sortedName = new String[arrayName.length];
+				String[] sortedAddress = new String[arrayAddress.length];
+				String[] sortedPhone = new String[arrayPhone.length];
+				String[] sortedLat = new String[arrayLat.length];
+				String[] sortedLong = new String[arrayLong.length];
+				String[] sortedRadius = new String[arrayLong.length];
+				Double[] doubleRadius = Arrays.copyOf(arrayRadius, arrayRadius.length);
+				int[] idx = new int[doubleRadius.length];
+				int index=0;
+				if(doubleRadius.length>0){
+					Arrays.sort(doubleRadius);
+					for(int i=0; i<doubleRadius.length; i++){
+						for(int j=0; j<arrayRadius.length; j++){
+							if(arrayRadius[j]==doubleRadius[i]){
+								idx[index] = j;
+								index++;
+							}
 						}
 					}
+					for(int i=0; i<idx.length; i++){
+						sortedName[i] = arrayName[idx[i]];
+						sortedAddress[i] = arrayAddress[idx[i]];
+						sortedPhone[i] = arrayPhone[idx[i]];
+						sortedLat[i] = arrayLat[idx[i]];
+						sortedLong[i] = arrayLong[idx[i]];
+						sortedRadius[i] = doubleRadius[i].toString();
+					}
 				}
-				for(int i=0; i<idx.length; i++){
-					sortedName[i] = arrayName[idx[i]];
-					sortedAddress[i] = arrayAddress[idx[i]];
-					sortedPhone[i] = arrayPhone[idx[i]];
-					sortedLat[i] = arrayLat[idx[i]];
-					sortedLong[i] = arrayLong[idx[i]];
-					sortedRadius[i] = doubleRadius[i].toString();
+				
+				pDialog.dismiss();
+				
+				Intent listResult = new Intent(FindRepairShop.this, ListResultActivity.class);
+				if(arrayName.length>0){
+					listResult.putExtra("category", "repair_shop");
+					listResult.putExtra("bengkel_name", sortedName);
+					listResult.putExtra("bengkel_address", sortedAddress);
+					listResult.putExtra("bengkel_phone", sortedPhone);
+					listResult.putExtra("vehicle_type", vehicleType);
+					listResult.putExtra("brand", brand);
+					listResult.putExtra("bengkel_lat", sortedLat);
+					listResult.putExtra("bengkel_long", sortedLong);
+					listResult.putExtra("bengkel_radius", sortedRadius);
 				}
+				startActivity(listResult);
+			} else {
+				Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
 			}
-			
-			pDialog.dismiss();
-			
-			Intent listResult = new Intent(FindRepairShop.this, ListResultActivity.class);
-			if(arrayName.length>0){
-				listResult.putExtra("category", "repair_shop");
-				listResult.putExtra("bengkel_name", sortedName);
-				listResult.putExtra("bengkel_address", sortedAddress);
-				listResult.putExtra("bengkel_phone", sortedPhone);
-				listResult.putExtra("vehicle_type", vehicleType);
-				listResult.putExtra("brand", brand);
-				listResult.putExtra("bengkel_lat", sortedLat);
-				listResult.putExtra("bengkel_long", sortedLong);
-				listResult.putExtra("bengkel_radius", sortedRadius);
-			}
-			startActivity(listResult);
 		}
 	}
 }

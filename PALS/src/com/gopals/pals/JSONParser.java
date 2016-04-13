@@ -55,8 +55,8 @@ public class JSONParser {
 
 			conn.setRequestProperty("Accept-Charset", charset);
 
-			conn.setReadTimeout(10000);
-			conn.setConnectTimeout(15000);
+			//conn.setReadTimeout(10000);
+			//conn.setConnectTimeout(15000);
 
 			conn.connect();
 
@@ -92,7 +92,9 @@ public class JSONParser {
 
 		// try parse the string to a JSON object
 		try {
-			jObj = new JSONObject(result.toString());
+			if(result != null){
+				jObj = new JSONObject(result.toString());
+			}
 		} catch (JSONException e) {
 			Log.e("JSON Parser", "Error parsing data " + e.toString());
 		}

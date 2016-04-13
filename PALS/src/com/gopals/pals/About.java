@@ -22,6 +22,7 @@ public class About extends Activity {
 		
 		ActionBar bar = getActionBar();
 		bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1a1a1a")));
+		bar.setTitle("");
 		
 		String versionName = getResources().getString(R.string.versionName);
 		Typeface bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");

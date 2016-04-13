@@ -15,10 +15,13 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,7 +45,7 @@ public class FindATM extends Activity implements
     
     private ProgressDialog pDialog;
     private static final String GET_ATM = 
-			"http://gopals.netau.net/get_atm.php";
+			"http://gopals.esy.es/get_atm.php";
     public static final String TAG_SUCCESS = "success";
 	public static final String TAG_MESSAGE = "message";
 	public static final String TAG_ATM = "atm";
@@ -74,6 +77,10 @@ public class FindATM extends Activity implements
         	StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         	StrictMode.setThreadPolicy(policy);
         }
+		
+		ActionBar bar = getActionBar();
+		bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1a1a1a")));
+		bar.setTitle("");
 		
 		Typeface bariol = Typeface.createFromAsset(getAssets(), "fonts/bariol.ttf");
 		
@@ -194,6 +201,8 @@ public class FindATM extends Activity implements
 	}
 	
 	public class GetATM extends AsyncTask<Void, Void, Boolean> {
+		String error;
+		
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
@@ -266,67 +275,74 @@ public class FindATM extends Activity implements
 						}
 					}
 				} 
+				return true;
 			} catch (JSONException e) {
-				 e.printStackTrace();
+				 //e.printStackTrace();
+				error = "Slow Internet Connection";
+				return false;
 			}
-			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
 			
-			String[] arrayName = new String[atmNameList.size()];
-			String[] arrayAddress = new String[atmAddressList.size()];
-			String[] arrayLat = new String[atmLatList.size()];
-			String[] arrayLong = new String[atmLongList.size()];
-			Double[] arrayRadius = new Double[atmRadiusList.size()];
-						
-			arrayName = atmNameList.toArray(arrayName);
-			arrayAddress = atmAddressList.toArray(arrayAddress);
-			arrayLat = atmLatList.toArray(arrayLat);
-			arrayLong = atmLongList.toArray(arrayLong);
-			arrayRadius = atmRadiusList.toArray(arrayRadius);
-			String[] sortedName = new String[arrayName.length];
-			String[] sortedAddress = new String[arrayAddress.length];
-			String[] sortedLat = new String[arrayLat.length];
-			String[] sortedLong = new String[arrayLong.length];
-			String[] sortedRadius = new String[arrayLong.length];
-			Double[] doubleRadius = Arrays.copyOf(arrayRadius, arrayRadius.length);
-			int[] idx = new int[doubleRadius.length];
-			int index=0;
-			if(doubleRadius.length>0){
-				Arrays.sort(doubleRadius);
-				for(int i=0; i<doubleRadius.length; i++){
-					for(int j=0; j<arrayRadius.length; j++){
-						if(arrayRadius[j]==doubleRadius[i]){
-							idx[index] = j;
-							index++;
+			if(result){
+				String[] arrayName = new String[atmNameList.size()];
+				String[] arrayAddress = new String[atmAddressList.size()];
+				String[] arrayLat = new String[atmLatList.size()];
+				String[] arrayLong = new String[atmLongList.size()];
+				Double[] arrayRadius = new Double[atmRadiusList.size()];
+							
+				arrayName = atmNameList.toArray(arrayName);
+				arrayAddress = atmAddressList.toArray(arrayAddress);
+				arrayLat = atmLatList.toArray(arrayLat);
+				arrayLong = atmLongList.toArray(arrayLong);
+				arrayRadius = atmRadiusList.toArray(arrayRadius);
+				String[] sortedName = new String[arrayName.length];
+				String[] sortedAddress = new String[arrayAddress.length];
+				String[] sortedLat = new String[arrayLat.length];
+				String[] sortedLong = new String[arrayLong.length];
+				String[] sortedRadius = new String[arrayLong.length];
+				Double[] doubleRadius = Arrays.copyOf(arrayRadius, arrayRadius.length);
+				int[] idx = new int[doubleRadius.length];
+				int index=0;
+				if(doubleRadius.length>0){
+					Arrays.sort(doubleRadius);
+					for(int i=0; i<doubleRadius.length; i++){
+						for(int j=0; j<arrayRadius.length; j++){
+							if(arrayRadius[j]==doubleRadius[i]){
+								idx[index] = j;
+								index++;
+							}
 						}
 					}
+					for(int i=0; i<idx.length; i++){
+						sortedName[i] = arrayName[idx[i]];
+						sortedAddress[i] = arrayAddress[idx[i]];
+						sortedLat[i] = arrayLat[idx[i]];
+						sortedLong[i] = arrayLong[idx[i]];
+						sortedRadius[i] = doubleRadius[i].toString();
+					}
 				}
-				for(int i=0; i<idx.length; i++){
-					sortedName[i] = arrayName[idx[i]];
-					sortedAddress[i] = arrayAddress[idx[i]];
-					sortedLat[i] = arrayLat[idx[i]];
-					sortedLong[i] = arrayLong[idx[i]];
-					sortedRadius[i] = doubleRadius[i].toString();
+				
+				pDialog.dismiss();
+				
+				Intent listResult = new Intent(FindATM.this, ListResultActivity.class);
+				if(arrayName.length>0){
+					listResult.putExtra("category", "atm");
+					listResult.putExtra("atm_name", sortedName);
+					listResult.putExtra("atm_address", sortedAddress);
+					listResult.putExtra("bank_name", bankName);
+					listResult.putExtra("atm_lat", sortedLat);
+					listResult.putExtra("atm_long", sortedLong);
+					listResult.putExtra("atm_radius", sortedRadius);
 				}
+				startActivity(listResult);
+			} else {
+				Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
 			}
 			
-			pDialog.dismiss();
-			
-			Intent listResult = new Intent(FindATM.this, ListResultActivity.class);
-			if(arrayName.length>0){
-				listResult.putExtra("category", "atm");
-				listResult.putExtra("atm_name", sortedName);
-				listResult.putExtra("atm_address", sortedAddress);
-				listResult.putExtra("bank_name", bankName);
-				listResult.putExtra("atm_lat", sortedLat);
-				listResult.putExtra("atm_long", sortedLong);
-				listResult.putExtra("atm_radius", sortedRadius);
-			}
-			startActivity(listResult);
 		}
 	}
 	

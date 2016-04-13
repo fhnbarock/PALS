@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -71,13 +73,15 @@ public class MapsActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_maps);
 		
+		ActionBar bar = getActionBar();
+		bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1a1a1a")));
+		bar.setTitle("");
+		
 		category = getIntent().getStringExtra("category");
 		placeName = getIntent().getStringExtra("place_name");
 		placeAddress = getIntent().getStringExtra("place_address");
 		placeLat = Double.valueOf(getIntent().getStringExtra("place_lat"));
 		placeLong = Double.valueOf(getIntent().getStringExtra("place_long"));
-		
-		
 		
 		if(category.equals("repair_shop")){
 			placePhone = getIntent().getStringExtra("place_phone");
@@ -152,7 +156,11 @@ public class MapsActivity extends FragmentActivity implements
 				direction.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						gMap.addPolyline(lineOptions);
+						if(lineOptions!=null){
+							gMap.addPolyline(lineOptions);
+						} else {
+							Toast.makeText(getApplicationContext(), "Please wait a second, and try again", Toast.LENGTH_SHORT).show();
+						}
 						dialog.dismiss();
 						
 					}

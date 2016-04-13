@@ -12,8 +12,8 @@ public class SplashActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash);
 		
-		ActionBar actionBar = getActionBar();
-	    actionBar.hide();
+		//ActionBar actionBar = getActionBar();
+	    //actionBar.hide();
 		
 		Thread timer = new Thread(){
 			public void run(){

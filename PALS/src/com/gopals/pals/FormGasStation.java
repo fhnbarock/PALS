@@ -5,12 +5,15 @@ import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -32,7 +35,7 @@ public class FormGasStation extends Activity {
 	JSONParser jsonParser = new JSONParser();
 	
 	private static final String INSERT_GAS_STATION_URL = 
-			"http://gopals.netau.net/insert_spbu.php";
+			"http://gopals.esy.es/insert_spbu.php";
 	public static final String TAG_SUCCESS = "success";
 	public static final String TAG_MESSAGE = "message";
 	
@@ -46,6 +49,10 @@ public class FormGasStation extends Activity {
         	StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         	StrictMode.setThreadPolicy(policy);
         }
+		
+		ActionBar bar = getActionBar();
+		bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#1a1a1a")));
+		bar.setTitle("");
 		
 		gasStationLat = String.valueOf(getIntent().getDoubleExtra("latitude", 0));
 		gasStationLong = String.valueOf(getIntent().getDoubleExtra("longitude", 0));

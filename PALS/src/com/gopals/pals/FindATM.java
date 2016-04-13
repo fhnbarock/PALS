@@ -226,7 +226,8 @@ public class FindATM extends Activity implements
             params.put("bank_name", bankName);
 			JSONParser jParser = new JSONParser();
 			JSONObject json = jParser.makeHttpRequest(GET_ATM, params);
-	        Log.d("All Data: ", json.toString());
+			if(json!=null)
+				Log.d("All Data: ", json.toString());
 			try {
 				CalculateRadius cr = new CalculateRadius();
 				int success = json.getInt(TAG_SUCCESS);
@@ -278,6 +279,10 @@ public class FindATM extends Activity implements
 				return true;
 			} catch (JSONException e) {
 				 //e.printStackTrace();
+				error = "Slow Internet Connection";
+				return false;
+			}catch(RuntimeException e){
+				//e.printStackTrace();
 				error = "Slow Internet Connection";
 				return false;
 			}
@@ -340,6 +345,7 @@ public class FindATM extends Activity implements
 				}
 				startActivity(listResult);
 			} else {
+				pDialog.dismiss();
 				Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
 			}
 			

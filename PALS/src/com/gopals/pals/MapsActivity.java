@@ -76,7 +76,7 @@ public class MapsActivity extends FragmentActivity implements
 	ArrayList<LatLng> points;
 	PolylineOptions lineOptions;
 	Marker markerCurrentLoc;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -91,8 +91,8 @@ public class MapsActivity extends FragmentActivity implements
 		placeAddress = getIntent().getStringExtra("place_address");
 		placeLat = Double.valueOf(getIntent().getStringExtra("place_lat"));
 		placeLong = Double.valueOf(getIntent().getStringExtra("place_long"));
-
-		if (category.equals("repair_shop")) {
+		
+		if(category.equals("repair_shop")) {
 			placePhone = getIntent().getStringExtra("place_phone");
 		}
 
@@ -145,10 +145,7 @@ public class MapsActivity extends FragmentActivity implements
 							if (placePhone != "-")
 								CallConfirmationDialog();
 							else
-								Toast.makeText(
-										MapsActivity.this,
-										"Repair Shop Doesn't "
-												+ "have telephone number",
+								Toast.makeText(MapsActivity.this, "Repair Shop Doesn't have telephone number",
 										Toast.LENGTH_SHORT).show();
 						}
 					});
@@ -215,10 +212,18 @@ public class MapsActivity extends FragmentActivity implements
 
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.action_bar_maps, menu);
+        if(category.equals("atm")){
+			menu.getItem(1).setIcon(getResources().getDrawable(R.drawable.icbutton_atm));
+		} else if(category.equals("gas_station")){
+			menu.getItem(1).setIcon(getResources().getDrawable(R.drawable.icbutton_spbu));
+		} else if(category.equals("repair_shop")) {
+			menu.getItem(1).setIcon(getResources().getDrawable(R.drawable.icbutton_bengkel));
+		}
         return super.onCreateOptionsMenu(menu);
     }
 	
@@ -228,12 +233,12 @@ public class MapsActivity extends FragmentActivity implements
         switch (item.getItemId()) {    
         case R.id.gotoCurrentLocation:
         	cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-					origin, 13);
+					origin, 15);
 			gMap.animateCamera(cameraUpdate);
         	break;
         case R.id.gotoDestination:
         	cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-					new LatLng(placeLat, placeLong), 13);
+					new LatLng(placeLat, placeLong), 15);
 			gMap.animateCamera(cameraUpdate);
         	break;
         default:
@@ -286,7 +291,7 @@ public class MapsActivity extends FragmentActivity implements
 				}else if(category.equals("gas_station")){
 					bitmap = BitmapDescriptorFactory
 							.fromResource(R.drawable.icbutton_location2);
-				}else if(category.equals("gas_station")){
+				}else if(category.equals("repair_shop")){
 					bitmap = BitmapDescriptorFactory
 							.fromResource(R.drawable.icbutton_location2);
 				}
@@ -295,7 +300,7 @@ public class MapsActivity extends FragmentActivity implements
 				gMap.setMyLocationEnabled(false);
 				gMap.getUiSettings().setRotateGesturesEnabled(false);
 				CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-						new LatLng(placeLat, placeLong), 12);
+						new LatLng(placeLat, placeLong), 14);
 				gMap.animateCamera(cameraUpdate);
 			}
 		}

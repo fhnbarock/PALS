@@ -13,6 +13,5 @@
         android:icon="@drawable/icbutton_location3"
         android:showAsAction="always"
         android:title="Your Destination"/>
-
 
 </menu>

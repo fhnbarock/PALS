@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/gotoCurrentLocation"
-        android:icon="@drawable/ic_mapmarker"
+        android:icon="@drawable/icbutton_current"
         android:showAsAction="always"
         android:title="My position"/>
     

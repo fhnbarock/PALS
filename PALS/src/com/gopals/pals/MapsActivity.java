@@ -46,6 +46,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -76,6 +77,7 @@ public class MapsActivity extends FragmentActivity implements
 	ArrayList<LatLng> points;
 	PolylineOptions lineOptions;
 	Marker markerCurrentLoc;
+	Circle mapCircle;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -287,13 +289,13 @@ public class MapsActivity extends FragmentActivity implements
 			if (gMap != null) {
 				if(category.equals("atm")){
 					 bitmap = BitmapDescriptorFactory
-							.fromResource(R.drawable.icbutton_location2);
+							.fromResource(R.drawable.marker_atm);
 				}else if(category.equals("gas_station")){
 					bitmap = BitmapDescriptorFactory
-							.fromResource(R.drawable.icbutton_location2);
+							.fromResource(R.drawable.marker_spbu);
 				}else if(category.equals("repair_shop")){
 					bitmap = BitmapDescriptorFactory
-							.fromResource(R.drawable.icbutton_location2);
+							.fromResource(R.drawable.marker_bengkel);
 				}
 				gMap.addMarker(new MarkerOptions().position(
 						new LatLng(placeLat, placeLong)).title(placeName).icon(bitmap));
@@ -311,6 +313,10 @@ public class MapsActivity extends FragmentActivity implements
 		if (markerCurrentLoc != null) {
 			markerCurrentLoc.remove();
 		}
+		
+		if (mapCircle != null) {
+			mapCircle.remove();
+		}
 
 		double currentLatitude = location.getLatitude();
 		double currentLongitude = location.getLongitude();
@@ -319,7 +325,7 @@ public class MapsActivity extends FragmentActivity implements
 
 		MarkerOptions options = new MarkerOptions().position(latLng).title(
 				"Your Position").icon(BitmapDescriptorFactory
-						.fromResource(R.drawable.ic_mapmarker));
+						.fromResource(R.drawable.marker_current));
 		markerCurrentLoc = gMap.addMarker(options);
 		drawCircle(latLng);
 	}
@@ -336,16 +342,16 @@ public class MapsActivity extends FragmentActivity implements
 		circleOptions.radius(100);
 
 		// Border color of the circle
-		circleOptions.strokeColor(Color.BLACK);
+		circleOptions.strokeColor(0xFF3d94cd);
 
 		// Fill color of the circle
-		circleOptions.fillColor(0x30ff0000);
+		circleOptions.fillColor(0x303d94cd);
 
 		// Border width of the circle
 		circleOptions.strokeWidth(2);
 
 		// Adding the circle to the GoogleMap
-		gMap.addCircle(circleOptions);
+		mapCircle = gMap.addCircle(circleOptions);
 
 	}
 
